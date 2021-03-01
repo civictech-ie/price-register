@@ -11,12 +11,17 @@ defmodule PriceRegisterWeb.SaleView do
   end
 
   def render("sale.json", %{sale: sale}) do
-    %{id: sale.id,
+    %{
+      id: sale.id,
       date: sale.date,
       price: sale.price,
-      market_price: sale.market_price,
+      address: sale.address,
+      postal_code: sale.postal_code,
+      county: sale.county,
+      full_market: sale.full_market,
       vat_inclusive: sale.vat_inclusive,
       description: sale.description,
-      size_description: sale.size_description}
+      size_description: sale.size_description
+    }
   end
 end

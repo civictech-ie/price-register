@@ -1,7 +1,6 @@
 alias NimbleCSV.RFC4180, as: CSV
 alias PriceRegister.RegisterParser
 
-PriceRegister.Repo.delete_all(PriceRegister.Properties.Property)
 PriceRegister.Repo.delete_all(PriceRegister.Properties.Sale)
 
 "./priv/repo/seeds.csv"

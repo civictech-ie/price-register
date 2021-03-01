@@ -20,9 +20,11 @@ defmodule PriceRegisterWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", PriceRegisterWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", PriceRegisterWeb do
+    pipe_through :api
+
+    resources "/sales", SaleController, only: [:show, :index]
+  end
 
   # Enables LiveDashboard only for development
   #
