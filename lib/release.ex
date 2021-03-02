@@ -15,6 +15,8 @@ defmodule PriceRegister.Release do
   end
 
   def seed do
+    load_app()
+
     for repo <- repos() do
       seed_script = seeds_path(repo)
 
@@ -29,6 +31,7 @@ defmodule PriceRegister.Release do
   defp priv_path_for(repo, filename) do
     app = Keyword.get(repo.config, :otp_app)
     repo_underscore = repo |> Module.split() |> List.last() |> Macro.underscore()
+    Path.join([priv_dir(app), repo_underscore, filename]) |> IO.puts()
     Path.join([priv_dir(app), repo_underscore, filename])
   end
 
