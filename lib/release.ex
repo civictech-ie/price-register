@@ -2,12 +2,15 @@ defmodule PriceRegister.Release do
   @app :price_register
 
   def migrate do
+    load_app()
+
     for repo <- repos() do
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
     end
   end
 
   def rollback(repo, version) do
+    load_app()
     {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))
   end
 
@@ -21,11 +24,6 @@ defmodule PriceRegister.Release do
     end
   end
 
-  defp repos do
-    Application.load(@app)
-    Application.fetch_env!(@app, :ecto_repos)
-  end
-
   defp seeds_path(repo), do: priv_path_for(repo, "seeds.exs")
 
   defp priv_path_for(repo, filename) do
@@ -34,5 +32,11 @@ defmodule PriceRegister.Release do
     Path.join([priv_dir(app), repo_underscore, filename])
   end
 
-  defp priv_dir(app), do: "#{:code.priv_dir(app)}"
+  defp repos do
+    Application.fetch_env!(@app, :ecto_repos)
+  end
+
+  defp load_app do
+    Application.load(@app)
+  end
 end
