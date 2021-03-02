@@ -18,7 +18,7 @@ defmodule PriceRegister.RegisterParser do
   end
 
   defp convert_values(row) when is_list(row) do
-    row |> Enum.map(fn str -> :iconv.convert("cp1252", "utf-8", str) end)
+    row |> Enum.map(fn str -> Mbcs.decode!(str, :cp1252) end)
   end
 
   defp parse_sale([

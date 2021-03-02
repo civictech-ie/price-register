@@ -20,7 +20,7 @@ defmodule PriceRegister.MixProject do
   def application do
     [
       mod: {PriceRegister.Application, []},
-      extra_applications: [:logger, :runtime_tools, :iconv]
+      extra_applications: [:logger, :runtime_tools, :mbcs]
     ]
   end
 
@@ -46,7 +46,7 @@ defmodule PriceRegister.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:nimble_csv, "~> 1.0"},
-      {:iconv, "~> 1.0.10"},
+      {:elixir_mbcs, github: "woxtu/elixir-mbcs", tag: "0.1.3"},
       {:quarto, "~> 1.1.5"},
       {:httpoison, "~> 1.8"},
       {:appsignal_phoenix, "~> 2.0.0"}
