@@ -47,7 +47,8 @@ defmodule PriceRegister.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:nimble_csv, "~> 1.0"},
       {:iconv, "~> 1.0.10"},
-      {:quarto, "~> 1.1.5"}
+      {:quarto, "~> 1.1.5"},
+      {:httpoison, "~> 1.8"}
     ]
   end
 

@@ -14,9 +14,10 @@ defmodule PriceRegister.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: PriceRegister.PubSub},
       # Start the Endpoint (http/https)
-      PriceRegisterWeb.Endpoint
+      PriceRegisterWeb.Endpoint,
       # Start a worker by calling: PriceRegister.Worker.start_link(arg)
       # {PriceRegister.Worker, arg}
+      PriceRegister.PPRFetcher
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
