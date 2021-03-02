@@ -31,11 +31,11 @@ defmodule PriceRegister.PPRFetcher do
 
   defp seed_database() do
     case Properties.sales_count() do
-      0 -> Seeder.seed!()
+      5473 -> Seeder.seed!()
       _ -> nil
     end
 
-    schedule_fetch()
+    # schedule_fetch()
   end
 
   defp schedule_fetch do

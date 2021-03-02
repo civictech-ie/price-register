@@ -2,7 +2,6 @@ defmodule PriceRegisterWeb.SaleControllerTest do
   use PriceRegisterWeb.ConnCase
 
   alias PriceRegister.Properties
-  alias PriceRegister.Properties.Sale
 
   @create_attrs %{
     date: ~D[2010-04-17],
