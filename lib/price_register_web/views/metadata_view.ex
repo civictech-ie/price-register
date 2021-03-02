@@ -1,6 +1,5 @@
 defmodule PriceRegisterWeb.MetadataView do
   use PriceRegisterWeb, :view
-  alias PriceRegisterWeb.MetadataView
 
   def render("metadata.json", %{metadata: metadata}) do
     %{

@@ -2,7 +2,6 @@ defmodule PriceRegisterWeb.SaleController do
   use PriceRegisterWeb, :controller
 
   alias PriceRegister.Properties
-  alias PriceRegister.Properties.Sale
 
   action_fallback PriceRegisterWeb.FallbackController
 
