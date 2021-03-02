@@ -8,6 +8,10 @@ defmodule PriceRegister.Properties do
 
   alias PriceRegister.Properties.Sale
 
+  def sales_count() do
+    Repo.one(from s in Sale, select: fragment("count(*)"))
+  end
+
   # no page
   def list_sales() do
     Sale

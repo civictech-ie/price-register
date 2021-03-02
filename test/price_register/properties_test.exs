@@ -42,6 +42,11 @@ defmodule PriceRegister.PropertiesTest do
       assert sales = [sale]
     end
 
+    test "sales_count/0 returns sales count" do
+      sale = sale_fixture()
+      assert Properties.sales_count() == 1
+    end
+
     test "get_sale!/1 returns the sale with given id" do
       sale = sale_fixture()
       assert Properties.get_sale!(sale.id) == sale

@@ -3,6 +3,8 @@ defmodule PriceRegister.PPRFetcher do
 
   alias NimbleCSV.RFC4180, as: CSV
   alias PriceRegister.RegisterParser
+  alias PriceRegister.Seeder
+  alias PriceRegister.Properties
 
   @interval 60_000
   # how many days back should we hunt for unimported rows?
@@ -15,7 +17,7 @@ defmodule PriceRegister.PPRFetcher do
   end
 
   def init(state) do
-    schedule_fetch()
+    seed_database()
     {:ok, state}
   end
 
@@ -25,6 +27,15 @@ defmodule PriceRegister.PPRFetcher do
     schedule_fetch()
 
     {:noreply, []}
+  end
+
+  defp seed_database() do
+    case Properties.sales_count() do
+      0 -> Seeder.seed!()
+      _ -> nil
+    end
+
+    schedule_fetch()
   end
 
   defp schedule_fetch do
