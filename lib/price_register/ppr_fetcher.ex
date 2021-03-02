@@ -4,7 +4,7 @@ defmodule PriceRegister.PPRFetcher do
   alias NimbleCSV.RFC4180, as: CSV
   alias PriceRegister.RegisterParser
 
-  @interval 6_000
+  @interval 60_000
   # how many days back should we hunt for unimported rows?
   @window 21
 
