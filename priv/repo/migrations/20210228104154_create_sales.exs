@@ -17,6 +17,8 @@ defmodule PriceRegister.Repo.Migrations.CreateSales do
       timestamps()
     end
 
+    create index(:sales, [:inserted_at])
+    create index(:sales, [:updated_at])
     create index(:sales, [:price])
     create index(:sales, [:date])
     create index(:sales, [:full_market])

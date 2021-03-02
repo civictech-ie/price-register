@@ -8,8 +8,14 @@ defmodule PriceRegister.Properties do
 
   alias PriceRegister.Properties.Sale
 
-  def list_sales do
-    Repo.all(Sale)
+  # no page
+  def list_sales() do
+    Sale
+    |> order_by({:desc, :date})
+    |> order_by({:asc_nulls_last, :county})
+    |> order_by({:asc_nulls_last, :postal_code})
+    |> order_by({:asc, :address})
+    |> Repo.paginate(include_total_count: true, total_count_limit: :infinity)
   end
 
   def upsert_sale(attrs \\ %{}) do

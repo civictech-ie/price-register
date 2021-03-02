@@ -16,17 +16,6 @@ defmodule PriceRegister.PropertiesTest do
       county: "Sligo"
     }
 
-    @update_attrs %{
-      date: ~D[2010-05-17],
-      description: "Second-Hand Dwelling house /Apartment",
-      full_market: true,
-      price: 360_000_00,
-      size_description: "Greater than or equal to 38 sq metres and less than 125 sq metres",
-      vat_inclusive: true,
-      address: "25 Markievicz Heights, Sligo",
-      county: "Sligo"
-    }
-
     @invalid_attrs %{
       date: nil,
       description: "Second-Hand Dwelling house /Apartment",
@@ -49,7 +38,8 @@ defmodule PriceRegister.PropertiesTest do
 
     test "list_sales/0 returns all sales" do
       sale = sale_fixture()
-      assert Properties.list_sales() == [sale]
+      %{entries: sales, metadata: _metadata} = Properties.list_sales()
+      assert sales = [sale]
     end
 
     test "get_sale!/1 returns the sale with given id" do

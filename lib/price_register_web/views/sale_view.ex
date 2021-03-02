@@ -1,13 +1,17 @@
 defmodule PriceRegisterWeb.SaleView do
   use PriceRegisterWeb, :view
   alias PriceRegisterWeb.SaleView
+  alias PriceRegisterWeb.MetadataView
 
-  def render("index.json", %{sales: sales}) do
-    %{data: render_many(sales, SaleView, "sale.json")}
+  def render("index.json", %{sales: sales, metadata: metadata}) do
+    %{
+      metadata: render_one(metadata, MetadataView, "metadata.json"),
+      sales: render_many(sales, SaleView, "sale.json")
+    }
   end
 
   def render("show.json", %{sale: sale}) do
-    %{data: render_one(sale, SaleView, "sale.json")}
+    render_one(sale, SaleView, "sale.json")
   end
 
   def render("sale.json", %{sale: sale}) do
