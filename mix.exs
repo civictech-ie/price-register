@@ -48,7 +48,8 @@ defmodule PriceRegister.MixProject do
       {:nimble_csv, "~> 1.0"},
       {:iconv, "~> 1.0.10"},
       {:quarto, "~> 1.1.5"},
-      {:httpoison, "~> 1.8"}
+      {:httpoison, "~> 1.8"},
+      {:appsignal_phoenix, "~> 2.0.0"}
     ]
   end
 
