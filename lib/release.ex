@@ -32,6 +32,8 @@ defmodule PriceRegister.Release do
     Path.join([priv_dir(app), repo_underscore, filename])
   end
 
+  defp priv_dir(app), do: "#{:code.priv_dir(app)}"
+
   defp repos do
     Application.fetch_env!(@app, :ecto_repos)
   end
