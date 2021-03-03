@@ -47,7 +47,7 @@ defmodule PriceRegister.Properties.Sale do
   defp generate_source_row(%{date: %Date{} = date, index: index} = attrs) do
     year_str = date.year |> Integer.to_string()
     month_str = date.month |> Integer.to_string() |> String.pad_leading(2, "0")
-    index_str = index |> Integer.to_string()
+    index_str = index |> Integer.to_string() |> String.pad_leading(9, "0")
 
     attrs |> Map.put(:source_row, "#{year_str}-#{month_str}-#{index_str}")
   end
