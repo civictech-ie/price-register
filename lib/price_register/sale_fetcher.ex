@@ -19,6 +19,7 @@ defmodule PriceRegister.SaleFetcher do
   end
 
   def fetch_months(start_date, count \\ 1) do
+    IO.puts("Fetching months: #{count}")
     # always re-fetch the most recent month
     start_date |> fetch_month()
     date = start_date
@@ -29,7 +30,7 @@ defmodule PriceRegister.SaleFetcher do
       date = date |> Date.end_of_month() |> Date.add(1)
 
       # don't fetch future months
-      if Date.diff(Date.utc_today(), date) < 0 do
+      if Date.diff(Date.utc_today(), date) > 0 do
         fetch_month(date)
       end
     end)
