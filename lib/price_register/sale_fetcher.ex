@@ -27,7 +27,11 @@ defmodule PriceRegister.SaleFetcher do
     0..count
     |> Enum.each(fn _i ->
       date = date |> Date.end_of_month() |> Date.add(1)
-      fetch_month(date)
+
+      # don't fetch future months
+      if Date.diff(Date.utc_today(), date) < 0 do
+        fetch_month(date)
+      end
     end)
   end
 
