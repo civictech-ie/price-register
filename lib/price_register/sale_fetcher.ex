@@ -22,12 +22,11 @@ defmodule PriceRegister.SaleFetcher do
     IO.puts("Fetching months: #{count}")
     # always re-fetch the most recent month
     start_date |> fetch_month()
-    date = start_date
 
     # fetch $count months
     0..count
-    |> Enum.each(fn _i ->
-      date = date |> Date.end_of_month() |> Date.add(1)
+    |> Enum.each(fn i ->
+      date = add_n_months(start_date, i)
 
       # don't fetch future months
       if Date.diff(Date.utc_today(), date) > 0 do
@@ -77,5 +76,15 @@ defmodule PriceRegister.SaleFetcher do
       %Date{} = date -> date
       _ -> @first_date
     end
+  end
+
+  defp add_n_months(date, 0), do: date
+
+  defp add_n_months(date, 1) do
+    date |> Date.end_of_month() |> Date.add(1)
+  end
+
+  defp add_n_months(date, n) when is_integer(n) do
+    add_n_months(add_n_months(date, 1), n - 1)
   end
 end
