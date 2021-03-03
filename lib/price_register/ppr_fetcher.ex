@@ -30,9 +30,8 @@ defmodule PriceRegister.PPRFetcher do
   end
 
   defp seed_database() do
-    case Properties.sales_count() do
-      5473 -> Seeder.seed!()
-      _ -> nil
+    if Properties.sales_count() < 462_185 do
+      Seeder.seed!()
     end
 
     # schedule_fetch()
