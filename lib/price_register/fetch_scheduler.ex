@@ -3,7 +3,7 @@ defmodule PriceRegister.FetchScheduler do
 
   alias PriceRegister.SaleFetcher
 
-  @interval 30_000
+  @interval 60_000
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
