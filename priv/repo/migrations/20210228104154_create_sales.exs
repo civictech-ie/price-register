@@ -4,9 +4,9 @@ defmodule PriceRegister.Repo.Migrations.CreateSales do
   def change do
     create table(:sales, primary_key: false) do
       add :id, :binary_id, primary_key: true
-      add :address, :text, null: false
-      add :postal_code, :text
-      add :county, :text, null: false
+      add :address, :text, default: "", null: false
+      add :postal_code, :text, default: "", null: false
+      add :county, :text, default: "", null: false
       add :date, :date, null: false
       add :price, :bigint, null: false
       add :full_market, :boolean, default: false, null: false
@@ -26,6 +26,7 @@ defmodule PriceRegister.Repo.Migrations.CreateSales do
     create index(:sales, [:postal_code])
     create index(:sales, [:county])
     create index(:sales, [:address])
-    create index(:sales, [:address, :county, :postal_code, :price, :date], unique: true)
+    create index(:sales, [:inserted_at, :date])
+    create index(:sales, [:address, :county, :postal_code, :price, :date])
   end
 end

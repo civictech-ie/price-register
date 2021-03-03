@@ -15,7 +15,7 @@ defmodule PriceRegisterWeb.SaleControllerTest do
   }
 
   def fixture(:sale) do
-    {:ok, sale} = Properties.upsert_sale(@create_attrs)
+    {:ok, sale} = Properties.insert_sale(@create_attrs)
     sale
   end
 

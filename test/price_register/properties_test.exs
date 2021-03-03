@@ -31,7 +31,7 @@ defmodule PriceRegister.PropertiesTest do
       {:ok, sale} =
         attrs
         |> Enum.into(@valid_attrs)
-        |> Properties.upsert_sale()
+        |> Properties.insert_sale()
 
       sale
     end
@@ -53,12 +53,12 @@ defmodule PriceRegister.PropertiesTest do
     end
 
     test "create_sale/1 with valid data creates a sale" do
-      assert {:ok, %Sale{} = sale} = Properties.upsert_sale(@valid_attrs)
+      assert {:ok, %Sale{} = sale} = Properties.insert_sale(@valid_attrs)
       assert sale.date == ~D[2010-04-17]
     end
 
     test "create_sale/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Properties.upsert_sale(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Properties.insert_sale(@invalid_attrs)
     end
   end
 end

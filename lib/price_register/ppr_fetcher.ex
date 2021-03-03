@@ -30,9 +30,7 @@ defmodule PriceRegister.PPRFetcher do
   end
 
   defp seed_database() do
-    if Properties.sales_count() < 462_185 do
-      Seeder.seed!()
-    end
+    Seeder.seed!()
 
     # schedule_fetch()
   end
@@ -43,36 +41,44 @@ defmodule PriceRegister.PPRFetcher do
 
   defp fetch_recent_sales() do
     [
-      Date.utc_today(),
-      Date.utc_today() |> Date.add(-1 * @window)
+      Date.utc_today() |> Date.beginning_of_month(),
+      Date.utc_today() |> Date.add(-1 * @window) |> Date.beginning_of_month()
     ]
-    |> Enum.map(fn date ->
-      year = date.year |> Integer.to_string()
-      month = date.month |> Integer.to_string() |> String.pad_leading(2, "0")
-      {year, month}
-    end)
     |> Enum.uniq()
-    |> Enum.each(fn {year, month} ->
-      fetch_month(year, month)
-    end)
+    |> Enum.each(fn date -> fetch_month(date) end)
   end
 
-  defp fetch_month(year, month) when is_binary(year) and is_binary(month) do
-    (@base_url <> "PPR-#{year}-#{month}.csv/$FILE/PPR-#{year}-#{month}.csv")
+  defp fetch_month(%Date{} = date) do
+    current_count = Properties.sales_count(Date.beginning_of_month(date), Date.end_of_month(date))
+
+    year_str = date.year |> Integer.to_string()
+    month_str = date.month |> Integer.to_string() |> String.pad_leading(2, "0")
+
+    (@base_url <> "PPR-#{year_str}-#{month_str}.csv/$FILE/PPR-#{year_str}-#{month_str}.csv")
     |> HTTPoison.get!()
     |> CSV.parse_string()
-    |> Enum.map(fn [
-                     _date,
-                     _address,
-                     _postal_code,
-                     _county,
-                     _price,
-                     _not_market,
-                     _vat_exclusive,
-                     _desc,
-                     _size_desc
-                   ] = row ->
-      RegisterParser.import_row!(row)
+    |> Enum.with_index()
+    |> Enum.map(fn {[
+                      _date,
+                      _address,
+                      _postal_code,
+                      _county,
+                      _price,
+                      _not_market,
+                      _vat_exclusive,
+                      _desc,
+                      _size_desc
+                    ] = row, index} ->
+      case index < current_count do
+        true ->
+          # skip
+          IO.puts("#{String.pad_leading(7, Integer.to_string(index))}: -")
+
+        false ->
+          # don't skip
+          RegisterParser.import_row!(row)
+          IO.puts("#{String.pad_leading(7, Integer.to_string(index))}: ·")
+      end
     end)
   end
 end

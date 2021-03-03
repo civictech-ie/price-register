@@ -4,14 +4,14 @@ defmodule PriceRegister.Properties.Sale do
 
   schema "sales" do
     field :date, :date
-    field :description, :string
-    field :full_market, :boolean, default: false
+    field :address, :string, default: ""
+    field :postal_code, :string, default: ""
+    field :county, :string, default: ""
     field :price, :integer
-    field :size_description, :string
+    field :description, :string, default: ""
+    field :full_market, :boolean, default: false
+    field :size_description, :string, default: ""
     field :vat_inclusive, :boolean, default: false
-    field :address, :string
-    field :postal_code, :string
-    field :county, :string
 
     timestamps()
   end
