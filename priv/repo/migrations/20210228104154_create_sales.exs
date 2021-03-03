@@ -13,11 +13,13 @@ defmodule PriceRegister.Repo.Migrations.CreateSales do
       add :vat_inclusive, :boolean, default: false, null: false
       add :description, :text, default: "", null: false
       add :size_description, :text, default: "", null: false
+      add :source_row, :text, null: false
 
       timestamps()
     end
 
     create index(:sales, [:inserted_at])
+    create index(:sales, [:source_row], unique: true)
     create index(:sales, [:updated_at])
     create index(:sales, [:price])
     create index(:sales, [:date])

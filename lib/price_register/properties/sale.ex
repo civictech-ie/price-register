@@ -12,6 +12,7 @@ defmodule PriceRegister.Properties.Sale do
     field :full_market, :boolean, default: false
     field :size_description, :string, default: ""
     field :vat_inclusive, :boolean, default: false
+    field :source_row, :string
 
     timestamps()
   end
@@ -19,7 +20,7 @@ defmodule PriceRegister.Properties.Sale do
   @doc false
   def changeset(sale, attrs) do
     sale
-    |> cast(attrs, [
+    |> cast(attrs |> generate_source_row, [
       :date,
       :price,
       :full_market,
@@ -28,7 +29,8 @@ defmodule PriceRegister.Properties.Sale do
       :size_description,
       :address,
       :postal_code,
-      :county
+      :county,
+      :source_row
     ])
     |> validate_required([
       :date,
@@ -36,7 +38,19 @@ defmodule PriceRegister.Properties.Sale do
       :full_market,
       :vat_inclusive,
       :address,
-      :county
+      :county,
+      :source_row
     ])
+    |> unique_constraint(:source_row)
   end
+
+  defp generate_source_row(%{date: %Date{} = date, index: index} = attrs) do
+    year_str = date.year |> Integer.to_string()
+    month_str = date.month |> Integer.to_string() |> String.pad_leading(2, "0")
+    index_str = index |> Integer.to_string()
+
+    attrs |> Map.put(:source_row, "#{year_str}-#{month_str}-#{index_str}")
+  end
+
+  defp generate_source_row(attrs), do: attrs
 end

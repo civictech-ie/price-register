@@ -1,8 +1,10 @@
-alias PriceRegister.Properties
-
 defmodule PriceRegister.RegisterParser do
+  alias PriceRegister.Properties
+  alias PriceRegister.Properties.Sale
+
   # dangerous: no duplicate protection at this level
   def import_row!(
+        index,
         [
           _date,
           _address,
@@ -15,7 +17,7 @@ defmodule PriceRegister.RegisterParser do
           _size_desc
         ] = row
       ) do
-    {:ok, _sale} = row |> convert_values |> parse_sale |> Properties.insert_sale()
+    {:ok, _sale} = row |> convert_values |> parse_sale |> Properties.insert_sale(index)
   end
 
   defp convert_values(row) when is_list(row) do

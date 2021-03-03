@@ -5,7 +5,8 @@ defmodule PriceRegisterWeb.MetadataView do
     %{
       after: metadata.after,
       before: metadata.before,
-      limit: metadata.limit
+      limit: metadata.limit,
+      total_count: metadata.total_count
     }
   end
 end
