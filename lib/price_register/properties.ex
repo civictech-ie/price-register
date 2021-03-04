@@ -111,10 +111,10 @@ defmodule PriceRegister.Properties do
 
   defp get_updated_at() do
     case :ets.lookup(@table_name, "updated_at") do
-      {"update_at", updated_at} ->
+      [{"update_at", updated_at}] ->
         updated_at
 
-      _ ->
+      alt ->
         case most_recent_update() do
           %DateTime{} = dt -> dt |> DateTime.to_string()
           %NaiveDateTime{} = ndt -> ndt |> DateTime.from_naive!("Etc/UTC") |> DateTime.to_string()
