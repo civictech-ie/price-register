@@ -41,22 +41,27 @@ defmodule PriceRegister.SaleFetcher do
 
     IO.puts("Fetching... #{year_str} #{month_str}")
 
-    get_csv_for_month!(month_str, year_str)
-    |> CSV.parse_string()
-    |> Enum.with_index()
-    |> Enum.map(fn {[
-                      _date,
-                      _address,
-                      _postal_code,
-                      _county,
-                      _price,
-                      _not_market,
-                      _vat_exclusive,
-                      _desc,
-                      _size_desc
-                    ] = row, index} ->
-      RegisterParser.import_row!(index, row)
-    end)
+    try do
+      get_csv_for_month!(month_str, year_str)
+      |> CSV.parse_string()
+      |> Enum.with_index()
+      |> Enum.map(fn {[
+                        _date,
+                        _address,
+                        _postal_code,
+                        _county,
+                        _price,
+                        _not_market,
+                        _vat_exclusive,
+                        _desc,
+                        _size_desc
+                      ] = row, index} ->
+        RegisterParser.import_row!(index, row)
+      end)
+    rescue
+      NimbleCSV.ParseError ->
+        IO.puts("Failed to fetch #{year_str} #{month_str}")
+    end
   end
 
   defp get_csv_for_month!(month_str, year_str) do
