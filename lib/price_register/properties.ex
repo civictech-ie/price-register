@@ -117,6 +117,7 @@ defmodule PriceRegister.Properties do
       _ ->
         case most_recent_update() do
           %DateTime{} = dt -> dt |> DateTime.to_string()
+          %NaiveDateTime{} = ndt -> ndt |> DateTime.from_naive!("Etc/UTC") |> DateTime.to_string()
           _ -> nil
         end
     end
