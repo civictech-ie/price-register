@@ -1,7 +1,7 @@
 defmodule PriceRegisterWeb.PageController do
   use PriceRegisterWeb, :controller
 
-  def index(conn, _params) do
-    render(conn, "index.html")
+  def info(conn, _params) do
+    render(conn, "info.html")
   end
 end

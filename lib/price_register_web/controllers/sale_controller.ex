@@ -3,15 +3,15 @@ defmodule PriceRegisterWeb.SaleController do
 
   alias PriceRegister.Properties
 
-  action_fallback PriceRegisterWeb.FallbackController
-
   def index(conn, _params) do
+    request_path = "GET " <> "/api/sales"
     %{entries: sales, metadata: metadata} = Properties.list_sales()
-    render(conn, "index.json", sales: sales, metadata: metadata)
+    render(conn, "index.html", sales: sales, metadata: metadata, request_path: request_path)
   end
 
   def show(conn, %{"id" => id}) do
     sale = Properties.get_sale!(id)
-    render(conn, "show.json", sale: sale)
+    request_path = "GET " <> "/api/sales/#{id}"
+    render(conn, "show.html", sale: sale, request_path: request_path)
   end
 end

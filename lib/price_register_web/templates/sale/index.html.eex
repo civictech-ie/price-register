@@ -1,0 +1,23 @@
+<div class="request">
+  <input type="text" disabled value="<%= @request_path %>" />
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Price</th>
+      <th>Address</th>
+      <th>County</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for sale <- @sales do %>
+      <tr onclick="location.href='<%= Routes.sale_path(@conn, :show, sale) %>'">
+        <td><%= format_date(sale.date) %></td>
+        <td><%= cents_to_euros(sale.price) %></td>
+        <td class="upcase"><%= sale.address %></td>
+        <td><%= sale.county %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

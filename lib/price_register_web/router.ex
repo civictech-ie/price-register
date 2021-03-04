@@ -16,11 +16,13 @@ defmodule PriceRegisterWeb.Router do
   scope "/", PriceRegisterWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    get "/", SaleController, :index
+    get "/info", PageController, :info
+    resources "/sales", SaleController, only: [:show, :index]
   end
 
   # Other scopes may use custom stacks.
-  scope "/api", PriceRegisterWeb do
+  scope "/api", PriceRegisterWeb.API do
     pipe_through :api
 
     resources "/sales", SaleController, only: [:show, :index]

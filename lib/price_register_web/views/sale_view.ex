@@ -1,31 +1,23 @@
 defmodule PriceRegisterWeb.SaleView do
   use PriceRegisterWeb, :view
-  alias PriceRegisterWeb.SaleView
-  alias PriceRegisterWeb.MetadataView
 
-  def render("index.json", %{sales: sales, metadata: metadata}) do
-    %{
-      metadata: render_one(metadata, MetadataView, "metadata.json"),
-      sales: render_many(sales, SaleView, "sale.json")
-    }
+  alias PriceRegister.Cldr
+
+  def format_date(nil), do: ""
+
+  def format_date(%Date{year: year, month: month, day: day}) do
+    [day, month, year]
+    |> Enum.map(&Integer.to_string/1)
+    |> Enum.map(fn str -> String.pad_leading(str, 2, "0") end)
+    |> Enum.join("/")
   end
 
-  def render("show.json", %{sale: sale}) do
-    render_one(sale, SaleView, "sale.json")
-  end
+  def cents_to_euros(nil), do: ""
 
-  def render("sale.json", %{sale: sale}) do
-    %{
-      id: sale.id,
-      date: sale.date,
-      price: sale.price,
-      address: sale.address,
-      postal_code: sale.postal_code,
-      county: sale.county,
-      full_market: sale.full_market,
-      vat_inclusive: sale.vat_inclusive,
-      description: sale.description,
-      size_description: sale.size_description
-    }
+  def cents_to_euros(price) do
+    price
+    |> Decimal.new()
+    |> Decimal.div(100)
+    |> Cldr.Number.to_string!(locale: "en", currency: "EUR")
   end
 end

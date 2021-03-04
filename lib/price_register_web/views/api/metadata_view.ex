@@ -1,4 +1,4 @@
-defmodule PriceRegisterWeb.MetadataView do
+defmodule PriceRegisterWeb.API.MetadataView do
   use PriceRegisterWeb, :view
 
   def render("metadata.json", %{metadata: metadata}) do

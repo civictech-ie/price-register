@@ -73,6 +73,56 @@ defmodule PriceRegister.Properties do
     }
   end
 
+  def list_sales(after: after_cursor) do
+    %{
+      entries: entries,
+      metadata: %{after: after_key, before: before_key, limit: limit, total_count: total_count}
+    } =
+      Sale
+      |> order_by({:desc, :source_row})
+      |> Repo.paginate(
+        after: after_cursor,
+        include_total_count: true,
+        total_count_limit: :infinity
+      )
+
+    %{
+      entries: entries,
+      metadata: %{
+        after: after_key,
+        before: before_key,
+        limit: limit,
+        total_count: total_count,
+        updated_at: get_updated_at()
+      }
+    }
+  end
+
+  def list_sales(before: before_cursor) do
+    %{
+      entries: entries,
+      metadata: %{after: after_key, before: before_key, limit: limit, total_count: total_count}
+    } =
+      Sale
+      |> order_by({:desc, :source_row})
+      |> Repo.paginate(
+        before: before_cursor,
+        include_total_count: true,
+        total_count_limit: :infinity
+      )
+
+    %{
+      entries: entries,
+      metadata: %{
+        after: after_key,
+        before: before_key,
+        limit: limit,
+        total_count: total_count,
+        updated_at: get_updated_at()
+      }
+    }
+  end
+
   def insert_sale(attrs \\ %{}, index) do
     %Sale{}
     |> Sale.changeset(attrs |> Map.put(:index, index))
@@ -95,6 +145,8 @@ defmodule PriceRegister.Properties do
     )
   end
 
+  def get_sale!(id), do: Sale |> Repo.get!(id)
+
   def get_sale!(date, address, postal_code, county, price) do
     Repo.one(
       from s in Sale,
@@ -106,8 +158,6 @@ defmodule PriceRegister.Properties do
         limit: 1
     )
   end
-
-  def get_sale!(id), do: Repo.get!(Sale, id)
 
   defp get_updated_at() do
     case :ets.lookup(@table_name, "updated_at") do

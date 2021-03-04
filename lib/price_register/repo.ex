@@ -4,5 +4,5 @@ defmodule PriceRegister.Repo do
     adapter: Ecto.Adapters.Postgres,
     migration_timestamps: [type: :utc_datetime_usec]
 
-  use Quarto, limit: 50
+  use Quarto, limit: 250
 end

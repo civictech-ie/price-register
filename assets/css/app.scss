@@ -1,36 +1,221 @@
-/* This file is for your main application css. */
-@import "./phoenix.css";
+// reset
 
-/* Alerts and form errors */
-.alert {
-  padding: 15px;
-  margin-bottom: 20px;
-  border: 1px solid transparent;
-  border-radius: 4px;
+@viewport {
+  zoom: 1.0;
+  width: extend-to-zoom;
 }
-.alert-info {
-  color: #31708f;
-  background-color: #d9edf7;
-  border-color: #bce8f1;
+
+@-ms-viewport {
+  width: extend-to-zoom;
+  zoom: 1.0;
 }
-.alert-warning {
-  color: #8a6d3b;
-  background-color: #fcf8e3;
-  border-color: #faebcc;
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, font, img, ins, kbd, q, s, samp, small, strike, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
+  margin: 0;
+  padding: 0;
+  font-size: 100%;
+  vertical-align: baseline;
+  border: 0;
+  background: transparent;
+  font-feature-settings: "kern", "liga", "pnum";
+  -webkit-backface-visibility: visible;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
-.alert-danger {
-  color: #a94442;
-  background-color: #f2dede;
-  border-color: #ebccd1;
+
+blockquote, q {
+  quotes: none;
 }
-.alert p {
-  margin-bottom: 0;
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
 }
-.alert:empty {
-  display: none;
+
+ul, ol {
+  list-style: none;
 }
-.invalid-feedback {
-  color: #a94442;
-  display: block;
-  margin: -1rem 0 2rem;
+
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+// fonts
+
+@font-face {
+  font-family: "c-mono";
+  src: url('https://d2jelilm07lhuq.cloudfront.net/typefaces/c-mono-400.woff') format('woff');
+  font-style: normal;
+  font-weight: 400;
+}
+
+// styles
+
+html {
+  font-size: 10px;
+  --accent: #ff0000;
+}
+
+body {
+  background-color: #fafafa;
+  font-size: 1.4rem;
+  line-height: 1.4;
+  font-family: "c-mono", serif;
+}
+
+::selection {
+  color: var(--accent); 
+  background: #eee;
+}
+
+h1 {
+  font-weight: 400;
+}
+
+header {
+  padding: 0 1rem;
+  position: sticky;
+  top: 0;
+
+  a, a:link, a:visited {
+    color: black;
+    text-decoration: none;
+    &:hover {
+      color: var(--accent);
+    }
+  }
+
+  .wrapper {
+    background-color: #fafafa;
+    padding: 4.25rem 0 1.5rem;
+    display: flex;
+    justify-content: flex-start;
+
+    h1 + nav {
+      &:before {
+        content: " /"
+      }
+    }
+  }
+}
+
+main {
+  padding: 0 1rem 1rem;
+}
+
+.request {
+  position: sticky;
+  background: #fafafa;
+  top: calc(7.7rem - 1px);
+  padding: 2rem 0 1rem;
+  display: flex;
+  justify-content: flex-start;
+
+  input[type="text"] {
+    margin: 0;
+    width: 48rem;
+    overflow: hidden;
+    text-align: left;
+
+    &[disabled] {
+      border: 0;
+      font-family: "c-mono";
+      font-size: 1.4rem;
+      line-height: 1.4;
+      background-color: #ddd;
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      &:before, &:after {
+        content: "`";
+      }
+    }
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th {
+    text-align: left;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    font-weight: 400;
+    letter-spacing: 0.175rem;
+  }
+  td, th {
+    padding: 1.5rem 2rem 1.5rem 0;
+    &.number {
+      text-align: right;
+    }
+    &.upcase {
+      text-transform: uppercase;
+    }
+  }
+
+  thead {
+    position: sticky;
+    background-color: #fafafa;
+    top: calc(7.7rem - 1px + 5.9rem);
+    tr {
+      border: 0;
+      th {
+        border-bottom: 1px solid black;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      th, td {
+        border-bottom: 1px solid #aaa;
+      }
+      &:hover {
+        th, td {
+          color: var(--accent);
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}
+
+article {
+  max-width: 56rem;
+  padding-top: 7.5rem;
+
+  a, a:link, a:visited {
+    color: black;
+    border-bottom: 1px solid black;
+    text-decoration: none;
+    &:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+  }
+
+  code {
+    background-color: #eee;
+    border-radius: 0.25rem;
+    &:before, &:after {
+      content: "`";
+    }
+  }
+
+  p + p {
+    text-indent: 8rem;
+  }
+
+  p.salutation {
+    text-indent: 0;
+    margin: 2rem;
+    padding-left: 8rem;
+  }
 }

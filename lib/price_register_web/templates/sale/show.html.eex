@@ -1,0 +1,6 @@
+<div class="request">
+  <input type="text" disabled value="<%= @request_path %>" />
+</div>
+<pre>
+  <%= @sale.address %>
+</pre>

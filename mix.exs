@@ -49,7 +49,9 @@ defmodule PriceRegister.MixProject do
       {:elixir_mbcs, github: "woxtu/elixir-mbcs", tag: "0.1.3"},
       {:quarto, "~> 1.1.5"},
       {:httpoison, "~> 1.8"},
-      {:appsignal_phoenix, "~> 2.0.0"}
+      {:appsignal_phoenix, "~> 2.0.0"},
+      {:ex_cldr, "~> 2.0"},
+      {:ex_cldr_numbers, "~> 2.0"}
     ]
   end
 
