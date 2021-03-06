@@ -64,8 +64,17 @@ html {
   --ink: #000;
 }
 
+@media (prefers-color-scheme: dark) {
+  html {
+    --accent: #ff0000;
+    --background: #000;
+    --ink: #fafafa;
+  }
+}
+
 body {
   background-color: var(--background);
+  color: var(--ink);
   font-size: 1.8rem;
   line-height: 2.43rem;
   font-family: "c-mono", serif;
