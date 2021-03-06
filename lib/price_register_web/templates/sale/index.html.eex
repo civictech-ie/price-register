@@ -3,31 +3,34 @@
     <input type="text" disabled value="<%= @request_path %>" />
   </div>
   <div class="pagination">
-    <span title="total sales"><%= format_number(@metadata.total_count) %></span>
+    <div class="total" title="total sales"><%= format_number(@metadata.total_count) %></div>
+    <div class="links">
+      <%= link "previous", to: Routes.sale_path(@conn, :index, before: @metadata.before), title: "previous sales", class: (if !@metadata.before, do: "disabled") %>
 
-    <%= link "previous", to: Routes.sale_path(@conn, :index, before: @metadata.before), title: "previous sales", class: (if !@metadata.before, do: "disabled") %>
-
-    <%= link "next", to: Routes.sale_path(@conn, :index, after: @metadata.after), title: "next sales", class: (if !@metadata.after, do: "disabled") %>
+      <%= link "next", to: Routes.sale_path(@conn, :index, after: @metadata.after), title: "next sales", class: (if !@metadata.after, do: "disabled") %>
+    </div>
   </div>
 </nav>
 
-<table>
-  <thead>
-    <tr>
-      <th class="one">Date</th>
-      <th class="one">Price</th>
-      <th class="four">Address</th>
-      <th class="one">County</th>
-    </tr>
-  </thead>
-  <tbody>
-    <%= for sale <- @sales do %>
-      <tr class="clickable" onclick="location.href='<%= Routes.sale_path(@conn, :show, sale) %>'">
-        <td class="one"><%= format_date(sale.date) %></td>
-        <td class="one"><%= format_currency(sale.price) %></td>
-        <td class="four"><%= sale.address %></td>
-        <td class="one"><%= sale.county %></td>
+<div class="view">
+  <table>
+    <thead>
+      <tr>
+        <th class="-sm">Date</th>
+        <th class="-sm">County</th>
+        <th class="-lg">Address</th>
+        <th class="-sm -price">Price</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <%= for sale <- @sales do %>
+        <tr>
+          <td class="-sm"><%= format_date(sale.date) %></td>
+          <td class="-sm"><%= sale.county %></td>
+          <td class="-lg"><%= sale.address %></td>
+          <td class="-sm -price"><%= format_currency(sale.price) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

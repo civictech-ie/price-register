@@ -59,9 +59,10 @@ ul, ol {
 
 html {
   font-size: 8px;
-  --accent: #ff0000;
+  --accent: #ff4400;
   --background: #fafafa;
   --ink: #000;
+  --offset: #eee;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -69,6 +70,7 @@ html {
     --accent: #ff0000;
     --background: #000;
     --ink: #fafafa;
+    --offset: #333;
   }
 }
 
@@ -82,176 +84,159 @@ body {
 
 ::selection {
   color: var(--accent); 
-  background: #eee;
+  background: var(--offset);
+}
+
+input[type="text"] {
+  color: var(--ink);
+  font-size: 1.8rem;
+  line-height: 2.43rem;
+  font-family: "c-mono", serif;
+  padding: 0.5rem 1.5rem;
+  border-radius: 2rem;
 }
 
 h1 {
   font-weight: 400;
+  text-transform: uppercase;
+}
+
+a, a:link, a:visited {
+  color: var(--ink);
+  text-decoration: none;
+  &:hover {
+    color: var(--accent);
+  }
 }
 
 header {
-  padding: 0 1rem 7.5rem;
-  top: 0;
-
-  a, a:link, a:visited {
-    color: var(--ink);
-    text-decoration: none;
-    &:hover {
-      color: var(--accent);
-    }
-  }
-
-  .wrapper {
-    background-color: var(--background);
-    padding: 1.5rem 0;
-    display: flex;
-    justify-content: flex-start;
-
-    h1 {
-      text-transform: uppercase;
-    }
-
-    h1 + a {
-      display: block;
-      &:before {
-        content: " / "
-      }
-      &:hover {
-        &:before {
-          color: var(--ink);
-        }
-      }
-    }
-  }
+  padding: 2rem 2rem 10rem;
 }
 
 main {
-  min-width: 65rem;
-  padding: 0 1rem 1rem;
+  padding: 0 0 2rem;
 }
 
 nav {
   position: sticky;
-  background: var(--background);
-  height: 8.125rem;
   top: 0;
-  padding: 2rem 0;
+  padding: 2rem;
+  background-color: var(--background);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
 
-  & > div {
-    width: 0;
-    flex: 1;
-    &:last-child {
-      display: flex;
-      justify-content: flex-end;
-    }
-  }
-
-  input[type="text"] {
-    margin: 0;
-    overflow: hidden;
-    text-align: left;
-    border: 0;
-    font-family: "c-mono";
-    font-size: 1.8rem;
-    line-height: 2.43rem;
-    border: 1px solid var(--ink);
-    color: var(--ink);
-    background-color: var(--background);
-    padding: 0.75rem 2.5rem;
-    border-radius: 2rem;
-
-    &[disabled] {
-      width: 100%;
-      background-color: var(--background);
-      color: var(--ink);
-      -webkit-text-fill-color: var(--ink);
-      opacity: 1;
-      &:before, &:after {
-        content: "`";
+  .request {
+    margin-bottom: 2rem;
+    input[type="text"] {
+      &[disabled] {
+        margin: 0;
+        width: 100%;
+        background: var(--background);
+        border: 1px solid var(--ink);
+        color: var(--ink);
+        -webkit-text-fill-color: var(--ink);
+        opacity: 1;
       }
     }
   }
 
   .pagination {
-    span {
-      &:after {
-        content: " / "
-      }
-    }
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-    a {
-      text-transform: uppercase;
-      color: var(--ink);
-      text-decoration: none;
-      &:hover {
-        color: var(--accent);
-      }
-      &.disabled {
-        opacity: 0.5;
-        cursor: default;
-        pointer-events: none;
-        &:hover {
-          color: var(--ink);
+    a.disabled {
+      opacity: 0.25;
+      pointer-events: none;
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    .request {
+      margin: 0;
+      input[type="text"] {
+        &[disabled] {
+          width: 64rem;
         }
       }
     }
 
-    a + a{
-      margin-left: 1rem;
+    .pagination {
+      justify-content: flex-end;
+
+      .total {
+        &:after {
+          content: " / ";
+        }
+      }
     }
   }
 }
 
+.view {
+  padding: 0 2rem 0;
+  margin-top: 4rem;
+  max-width: 100%;
+  overflow: auto;
+
+  @media screen and (min-width: 768px) {
+    overflow: visible;
+  }
+}
+
 table {
-  width: 100%;
   border-collapse: separate;
-  text-transform: uppercase;
   border-spacing: 0;
-
-  th {
-    font-weight: 400;
-    text-align: left;
-  }
-
-  td, th {
-    padding: 1rem;
-    border-right: 1px solid var(--ink);
-    border-bottom: 1px solid var(--ink);
-    &:last-child {
-      border-right: 0;
-    }
-    &.note {
-      width: calc(100%/4);
-    }
-    &.one {
-      width: 16%;
-    }
-    &.four {
-      width: 52%;
-    }
-  }
-
-  td.note {
-    padding: 0.75rem 1rem;
-    vertical-align: top;
-    text-transform: none;
-    font-size: 1.2rem;
-    line-height: calc(1.2rem * 1.35);
-  }
+  table-layout: fixed;
 
   thead {
-    position: sticky;
-    background-color: var(--background);
-    top: calc(8.125rem);
     tr {
-      border: 0;
       th {
-        border-right: 0;
-        border-bottom: 1px solid var(--ink);
       }
+    }
+  }
+
+  tr {
+    &.-clickable {
+      &:hover {
+        cursor: pointer;
+        color: var(--accent);
+      }
+    }
+  }
+
+  th, td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 400;
+    text-align: left;
+    text-transform: uppercase;
+    padding: 0.75rem 2rem;
+    border-bottom: 1px solid var(--ink);
+
+    &.-sm {
+      width: 15%;
+      max-width: 15%;
+    }
+    &.-lg {
+      width: 55%;
+      max-width: 55%;
+    }
+
+    &:first-child {
+      padding-left: 0;
+    }
+
+    &:last-child {
+      padding-right: 0;
+      text-align: right;
     }
   }
 
@@ -262,34 +247,36 @@ table {
           border-bottom: 0;
         }
       }
-      &.clickable {
-        &:hover {
-          th, td {
-            color: var(--accent);
-            cursor: pointer;
-          }
-        }
-      }
     }
+  }
+
+
+  @media screen and (min-width: 768px) {
+    width: 100%;
+    thead {
+      background-color: var(--background);
+      position: sticky;
+      top: 7.625rem;
+    }
+  }
+
+  @media screen and (min-width: 960px) {
   }
 }
 
 article {
-  max-width: 56rem;
-  padding-top: 7.5rem;
+  max-width: 64rem;
+  padding-bottom: 10rem;
 
   a, a:link, a:visited {
-    color: var(--ink);
     border-bottom: 1px solid var(--ink);
-    text-decoration: none;
     &:hover {
-      color: var(--accent);
       border-bottom-color: var(--accent);
     }
   }
 
   code {
-    background-color: #eee;
+    background-color: var(--offset);
     border-radius: 0.25rem;
     &:before, &:after {
       content: "`";

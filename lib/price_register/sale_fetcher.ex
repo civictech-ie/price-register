@@ -20,9 +20,6 @@ defmodule PriceRegister.SaleFetcher do
 
   def fetch_months(start_date, count \\ 1) do
     IO.puts("Fetching months: #{count}")
-    # always re-fetch the most recent month
-    start_date |> fetch_month()
-
     # fetch $count months
     0..count
     |> Enum.each(fn i ->
