@@ -16,9 +16,10 @@ defmodule PriceRegisterWeb.Router do
   scope "/", PriceRegisterWeb do
     pipe_through :browser
 
-    get "/", SaleController, :index
     get "/info", PageController, :info
     resources "/sales", SaleController, only: [:show, :index]
+
+    get "/", SaleController, :index
   end
 
   # Other scopes may use custom stacks.

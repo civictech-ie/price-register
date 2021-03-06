@@ -1,22 +1,32 @@
-<div class="request">
-  <input type="text" disabled value="<%= @request_path %>" />
-</div>
+<nav>
+  <div class="request">
+    <input type="text" disabled value="<%= @request_path %>" />
+  </div>
+  <div class="pagination">
+    <span><%= format_number(@metadata.total_count) %></span>
+
+    <%= link "previous", to: Routes.sale_path(@conn, :index, before: @metadata.before), title: "previous sales", class: (if !@metadata.before, do: "disabled") %>
+
+    <%= link "next", to: Routes.sale_path(@conn, :index, after: @metadata.after), title: "next sales", class: (if !@metadata.after, do: "disabled") %>
+  </div>
+</nav>
+
 <table>
   <thead>
     <tr>
-      <th>Date</th>
-      <th>Price</th>
-      <th>Address</th>
-      <th>County</th>
+      <th class="one">Date</th>
+      <th class="one">Price</th>
+      <th class="four">Address</th>
+      <th class="one">County</th>
     </tr>
   </thead>
   <tbody>
     <%= for sale <- @sales do %>
-      <tr onclick="location.href='<%= Routes.sale_path(@conn, :show, sale) %>'">
-        <td><%= format_date(sale.date) %></td>
-        <td><%= cents_to_euros(sale.price) %></td>
-        <td class="upcase"><%= sale.address %></td>
-        <td><%= sale.county %></td>
+      <tr class="clickable" onclick="location.href='<%= Routes.sale_path(@conn, :show, sale) %>'">
+        <td class="one"><%= format_date(sale.date) %></td>
+        <td class="one"><%= format_currency(sale.price) %></td>
+        <td class="four"><%= sale.address %></td>
+        <td class="one"><%= sale.county %></td>
       </tr>
     <% end %>
   </tbody>

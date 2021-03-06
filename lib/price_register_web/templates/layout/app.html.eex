@@ -12,9 +12,7 @@
     <header>
       <div class="wrapper">
         <h1><a href="/">Price Register API</a></h1>
-        <nav>
-          <a href="/info">info</a>
-        </nav>
+        <a href="/info">info</a>
       </div>
     </header>
     <main role="main">

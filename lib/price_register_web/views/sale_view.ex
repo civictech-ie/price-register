@@ -12,9 +12,15 @@ defmodule PriceRegisterWeb.SaleView do
     |> Enum.join("/")
   end
 
-  def cents_to_euros(nil), do: ""
+  def format_number(nil), do: ""
 
-  def cents_to_euros(price) do
+  def format_number(number) do
+    number |> Cldr.Number.to_string!(locale: "en")
+  end
+
+  def format_currency(nil), do: ""
+
+  def format_currency(price) do
     price
     |> Decimal.new()
     |> Decimal.div(100)
