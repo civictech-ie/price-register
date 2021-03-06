@@ -9,60 +9,60 @@
 <table>
   <thead>
     <tr>
-      <th>Field</th>
+      <th class="one">Field</th>
       <th>Value</th>
       <th class="note">Note</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th>UUID</td>
+      <th class="one">UUID</td>
       <td><%= @sale.id %></td>
       <td class="note">Useful for ensuring you're not importing the same sale twice.</td>
     </tr>
     <tr>
-      <th>date</td>
+      <th class="one">date</td>
       <td><%= @sale.date |> format_date %></td>
       <td class="note"></td>
     </tr>
     <tr>
-      <th>price</td>
+      <th class="one">price</td>
       <td><%= @sale.price |> format_currency %></td>
       <td class="note">This is stored and returned as an integer in cents, not euros.</td>
     </tr>
     <tr>
-      <th>address</td>
+      <th class="one">address</td>
       <td><%= @sale.address %></td>
       <td class="note">Exactly as we receive it from the PSRA &mdash; no cleaning, correcting or normalising</td>
     </tr>
     <tr>
-      <th>postal_code</td>
+      <th class="one">postal_code</td>
       <td><%= @sale.postal_code %></td>
       <td class="note">Only for Dublin properties. Not Eircode</td>
     </tr>
     <tr>
-      <th>county</td>
+      <th class="one">county</td>
       <td><%= @sale.county %></td>
       <td class="note"></td>
     </tr>
     </tr>
     <tr>
-      <th>full_market</td>
+      <th class="one">full_market</td>
       <td><%= @sale.full_market %></td>
       <td class="note">This is inverted from the PSRA's field, and normalised into a boolean.</td>
     </tr>
     <tr>
-      <th>vat_inclusive</td>
+      <th class="one">vat_inclusive</td>
       <td><%= @sale.vat_inclusive %></td>
       <td class="note">Also inverted from the PSRA's field, and normalised into a boolean.</td>
     </tr>
     <tr>
-      <th>description</td>
+      <th class="one">description</td>
       <td><%= @sale.description %></td>
       <td class="note">As we receive it from the PSRA.</td>
     </tr>
     <tr>
-      <th>size_description</td>
+      <th class="one">size_description</td>
       <td><%= @sale.size_description %></td>
       <td class="note">As above.</td>
     </tr>

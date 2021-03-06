@@ -3,7 +3,7 @@
     <input type="text" disabled value="<%= @request_path %>" />
   </div>
   <div class="pagination">
-    <span><%= format_number(@metadata.total_count) %></span>
+    <span title="total sales"><%= format_number(@metadata.total_count) %></span>
 
     <%= link "previous", to: Routes.sale_path(@conn, :index, before: @metadata.before), title: "previous sales", class: (if !@metadata.before, do: "disabled") %>
 
