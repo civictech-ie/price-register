@@ -24,7 +24,7 @@
     </thead>
     <tbody>
       <%= for sale <- @sales do %>
-        <tr>
+        <tr class="-clickable" onclick="location.href='<%= Routes.sale_path(@conn, :show, sale) %>'">
           <td class="-sm"><%= format_date(sale.date) %></td>
           <td class="-sm"><%= sale.county %></td>
           <td class="-lg"><%= sale.address %></td>
