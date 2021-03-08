@@ -131,14 +131,14 @@ html {
   }
 }
 
-// @media (prefers-color-scheme: dark) {
-//   html {
-//     --accent: #ff0000;
-//     --background: #000;
-//     --ink: #fafafa;
-//     --offset: #333;
-//   }
-// }
+@media (prefers-color-scheme: dark) {
+  html {
+    --accent: #ff0000;
+    --background: #000;
+    --ink: #fafafa;
+    --offset: #333;
+  }
+}
 
 body {
   background-color: var(--background);
