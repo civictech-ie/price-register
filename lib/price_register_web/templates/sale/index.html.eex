@@ -1,36 +1,41 @@
-<nav>
+<nav class="view-nav">
   <div class="request">
     <input type="text" disabled value="<%= @request_path %>" />
   </div>
   <div class="pagination">
     <div class="total" title="total sales"><%= format_number(@metadata.total_count) %></div>
     <div class="links">
-      <%= link "previous", to: Routes.sale_path(@conn, :index, before: @metadata.before), title: "previous sales", class: (if !@metadata.before, do: "disabled") %>
+      <%= link "previous", to: Routes.sale_path(@conn, :index, before: @metadata.before), title: "previous sales", class: (if !@metadata.before, do: "disabled"), "data-turbo-preserve-scroll": true %>
 
-      <%= link "next", to: Routes.sale_path(@conn, :index, after: @metadata.after), title: "next sales", class: (if !@metadata.after, do: "disabled") %>
+      <%= link "next", to: Routes.sale_path(@conn, :index, after: @metadata.after), title: "next sales", class: (if !@metadata.after, do: "disabled"), "data-turbo-preserve-scroll": true %>
     </div>
   </div>
 </nav>
 
 <div class="view">
-  <table>
-    <thead>
-      <tr>
-        <th class="-sm">Date</th>
-        <th class="-sm">County</th>
-        <th class="-lg">Address</th>
-        <th class="-sm -price">Price</th>
-      </tr>
-    </thead>
-    <tbody>
-      <%= for sale <- @sales do %>
-        <tr class="-clickable" onclick="location.href='<%= Routes.sale_path(@conn, :show, sale) %>'">
-          <td class="-sm"><%= format_date(sale.date) %></td>
-          <td class="-sm"><%= sale.county %></td>
-          <td class="-lg"><%= sale.address %></td>
-          <td class="-sm -price"><%= format_currency(sale.price) %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+  <div class="list-view" >
+    <header>
+      <div class="row">
+        <div class="label date"><label>Date</label></div>
+        <div class="label county"><label>County</label></div>
+        <div class="label address"><label>Address</label></div>
+        <div class="label price"><label>Price</label></div>
+      </div>
+    </header>
+    <main>
+      <ol>
+        <%= for sale <- @sales do %>
+          <li>
+            <div class="row -clickable">
+              <div class="data date"><span><%= format_date(sale.date) %></span></div>
+              <div class="data county"><span><%= sale.county %></span></div>
+              <div class="data address"><span><%= sale.address %></span></div>
+              <div class="data price"><span><%= format_currency(sale.price) %></span></div>
+              <%= link "", to: Routes.sale_path(@conn, :show, sale.id), class: "link" %>
+            </div>
+          </li>
+        <% end %>
+      </ol>
+    </main>
+  </div>
 </div>

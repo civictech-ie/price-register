@@ -1,16 +1,75 @@
 // reset
 
 @viewport {
-  zoom: 1.0;
+  zoom: 1;
   width: extend-to-zoom;
 }
 
 @-ms-viewport {
   width: extend-to-zoom;
-  zoom: 1.0;
+  zoom: 1;
 }
 
-html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, font, img, ins, kbd, q, s, samp, small, strike, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+font,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td {
   margin: 0;
   padding: 0;
   font-size: 100%;
@@ -26,7 +85,8 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
   text-size-adjust: 100%;
 }
 
-blockquote, q {
+blockquote,
+q {
   quotes: none;
 }
 
@@ -35,7 +95,8 @@ table {
   border-spacing: 0;
 }
 
-ul, ol {
+ul,
+ol {
   list-style: none;
 }
 
@@ -50,7 +111,8 @@ ul, ol {
 
 @font-face {
   font-family: "c-mono";
-  src: url('https://d2jelilm07lhuq.cloudfront.net/typefaces/c-mono-400.woff') format('woff');
+  src: url("https://d2jelilm07lhuq.cloudfront.net/typefaces/c-mono-400.woff")
+    format("woff");
   font-style: normal;
   font-weight: 400;
 }
@@ -58,21 +120,25 @@ ul, ol {
 // styles
 
 html {
-  font-size: 8px;
+  font-size: 7px;
   --accent: #ff4400;
   --background: #fafafa;
   --ink: #000;
   --offset: #eee;
-}
 
-@media (prefers-color-scheme: dark) {
-  html {
-    --accent: #ff0000;
-    --background: #000;
-    --ink: #fafafa;
-    --offset: #333;
+  @media screen and (min-width: 800px) {
+    font-size: 8px;
   }
 }
+
+// @media (prefers-color-scheme: dark) {
+//   html {
+//     --accent: #ff0000;
+//     --background: #000;
+//     --ink: #fafafa;
+//     --offset: #333;
+//   }
+// }
 
 body {
   background-color: var(--background);
@@ -83,7 +149,7 @@ body {
 }
 
 ::selection {
-  color: var(--accent); 
+  color: var(--accent);
   background: var(--offset);
 }
 
@@ -101,7 +167,9 @@ h1 {
   text-transform: uppercase;
 }
 
-a, a:link, a:visited {
+a,
+a:link,
+a:visited {
   color: var(--ink);
   text-decoration: none;
   &:hover {
@@ -109,18 +177,20 @@ a, a:link, a:visited {
   }
 }
 
-header {
+body > header {
   padding: 2rem 2rem 10rem;
 }
 
-main {
+body > main {
   padding: 0 0 2rem;
 }
 
-nav {
+.view-nav {
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   padding: 2rem;
+  z-index: 99;
   background-color: var(--background);
   display: flex;
   flex-direction: column;
@@ -153,7 +223,7 @@ nav {
     }
   }
 
-  @media screen and (min-width: 768px) {
+  @media screen and (min-width: 800px) {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -177,90 +247,145 @@ nav {
       }
     }
   }
+
+  @media screen and (min-width: 960px) {
+    .request {
+      input[type="text"] {
+        &[disabled] {
+          width: 72rem;
+        }
+      }
+    }
+  }
 }
 
 .view {
   padding: 0 2rem 0;
   margin-top: 4rem;
-  max-width: 100%;
-  overflow: auto;
 
-  @media screen and (min-width: 768px) {
-    overflow: visible;
+  @media screen and (min-width: 720px) {
   }
 }
 
-table {
-  border-collapse: separate;
-  border-spacing: 0;
-  table-layout: fixed;
+.list-view {
+  & > header {
+    z-index: 98;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 12.142857142857143rem;
+    background-color: var(--background);
+    padding: 1rem 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--ink);
+    .row {
+    }
 
-  thead {
-    tr {
-      th {
-      }
+    @media screen and (min-width: 720px) {
+    }
+
+    @media screen and (min-width: 800px) {
+      top: 7.625rem;
     }
   }
 
-  tr {
+  & > main {
+  }
+
+  li {
+    &:nth-child(even) {
+    }
+  }
+
+  .row {
+    position: relative;
+    display: flex;
+    flex-flow: row nowrap;
+    flex: 1 1 auto;
+    text-transform: uppercase;
+
     &.-clickable {
       &:hover {
         cursor: pointer;
         color: var(--accent);
       }
     }
-  }
 
-  th, td {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-weight: 400;
-    text-align: left;
-    text-transform: uppercase;
-    padding: 0.75rem 2rem;
-    border-bottom: 1px solid var(--ink);
-
-    &.-sm {
-      width: 15%;
-      max-width: 15%;
-    }
-    &.-lg {
-      width: 55%;
-      max-width: 55%;
+    .link {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
     }
 
-    &:first-child {
-      padding-left: 0;
-    }
+    .label,
+    .data {
+      display: flex;
+      flex-flow: row nowrap;
+      flex-grow: 1;
+      flex-shrink: 1;
+      flex-basis: 0;
+      overflow: hidden;
+      padding: 0.5rem 2rem 0.5rem 0;
 
-    &:last-child {
-      padding-right: 0;
-      text-align: right;
-    }
-  }
+      span,
+      label {
+        display: block;
+        width: 100%;
+        word-break: break-word;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-  tbody {
-    tr {
-      &:last-child {
-        th, td {
-          border-bottom: 0;
+      &.price {
+        text-align: right;
+        padding-right: 0;
+      }
+
+      &.date {
+      }
+
+      &.county {
+        display: none;
+      }
+
+      &.address {
+        flex-grow: 2;
+      }
+
+      &.value,
+      &.note {
+        flex-grow: 2;
+        text-transform: none;
+      }
+
+      &.price,
+      &.note {
+        display: none;
+      }
+
+      @media screen and (min-width: 720px) {
+        &.date {
+        }
+
+        &.address,
+        &.value {
+          flex-grow: 3;
+        }
+
+        &.price {
+          display: flex;
+        }
+      }
+
+      @media screen and (min-width: 800px) {
+        &.county,
+        &.note {
+          display: flex;
         }
       }
     }
-  }
-
-
-  @media screen and (min-width: 768px) {
-    width: 100%;
-    thead {
-      background-color: var(--background);
-      position: sticky;
-      top: 7.625rem;
-    }
-  }
-
-  @media screen and (min-width: 960px) {
   }
 }
 
@@ -268,7 +393,9 @@ article {
   max-width: 64rem;
   padding-bottom: 10rem;
 
-  a, a:link, a:visited {
+  a,
+  a:link,
+  a:visited {
     border-bottom: 1px solid var(--ink);
     &:hover {
       border-bottom-color: var(--accent);
@@ -278,7 +405,8 @@ article {
   code {
     background-color: var(--offset);
     border-radius: 0.25rem;
-    &:before, &:after {
+    &:before,
+    &:after {
       content: "`";
     }
   }

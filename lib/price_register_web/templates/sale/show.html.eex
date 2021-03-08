@@ -1,61 +1,71 @@
-<nav>
+<nav class="view-nav">
   <div class="request">
     <input type="text" disabled value="<%= @request_path %>" />
   </div>
-  <div class="pagination">&nbsp;
+  <div class="pagination">
   </div>
 </nav>
 
 <div class="view">
-  <table>
-    <thead>
-      <tr>
-        <th class="one">Field</th>
-        <th>Value</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th class="one">UUID</td>
-        <td><%= @sale.id %></td>
-      </tr>
-      <tr>
-        <th class="one">date</td>
-        <td><%= @sale.date |> format_date %></td>
-      </tr>
-      <tr>
-        <th class="one">price</td>
-        <td><%= @sale.price |> format_currency %></td>
-      </tr>
-      <tr>
-        <th class="one">address</td>
-        <td><%= @sale.address %></td>
-      </tr>
-      <tr>
-        <th class="one">postal_code</td>
-        <td><%= @sale.postal_code %></td>
-      </tr>
-      <tr>
-        <th class="one">county</td>
-        <td><%= @sale.county %></td>
-      </tr>
-      </tr>
-      <tr>
-        <th class="one">full_market</td>
-        <td><%= @sale.full_market %></td>
-      </tr>
-      <tr>
-        <th class="one">vat_inclusive</td>
-        <td><%= @sale.vat_inclusive %></td>
-      </tr>
-      <tr>
-        <th class="one">description</td>
-        <td><%= @sale.description %></td>
-      </tr>
-      <tr>
-        <th class="one">size_description</td>
-        <td><%= @sale.size_description %></td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="list-view" >
+    <header>
+      <div class="row">
+        <div class="label field"><label>Field</label></div>
+        <div class="label value"><label>Value</label></div>
+        <div class="label note"><label>Notes</label></div>
+      </div>
+    </header>
+    <main>
+      <div class="row">
+        <div class="data field"><span>UUID</span></div>
+        <div class="data value"><span><%= @sale.id %></span></div>
+        <div class="data note"><span>&nbsp;</span></div>
+      </div>
+      <div class="row">
+        <div class="data field"><span>Date</span></div>
+        <div class="data value"><span><%= @sale.date |> format_date %></span></div>
+        <div class="data note"><span>&nbsp;</span></div>
+      </div>
+      <div class="row">
+        <div class="data field"><span>Price</span></div>
+        <div class="data value"><span><%= @sale.price |> format_currency %></span></div>
+        <div class="data note"><span>Stored and returned in cents, not euros.</span></div>
+      </div>
+      <div class="row">
+        <div class="data field"><span>Address</span></div>
+        <div class="data value"><span><%= @sale.address %></span></div>
+        <div class="data note"><span>Not cleaned or normalised, so expect typos and errors.</span></div>
+      </div>
+      <div class="row">
+        <div class="data field"><span>Postal code</span></div>
+        <div class="data value"><span><%= @sale.postal_code %></span></div>
+        <div class="data note"><span>Dublin-only. Not to be confused with eircodes.</span></div>
+      </div>
+      <div class="row">
+        <div class="data field"><span>County</span></div>
+        <div class="data value"><span><%= @sale.county %></span></div>
+        <div class="data note"><span>&nbsp;</span></div>
+      </div>
+      <div class="row">
+        <div class="data field"><span>Full market</span></div>
+        <div class="data value"><span><%= @sale.full_market %></span></div>
+        <div class="data note"><span>Inverted from the source CSV&rsquo;s value to avoid confusing double negatives.</span></div>
+      </div>
+      <div class="row">
+        <div class="data field"><span>VAT Inclusive</span></div>
+        <div class="data value"><span><%= @sale.vat_inclusive %></span></div>
+        <div class="data note"><span>Also inverted &mdash; same as above.</span></div>
+      </div>
+      <div class="row">
+        <div class="data field"><span>Description</span></div>
+        <div class="data value"><span><%= @sale.description %></span></div>
+        <div class="data note"><span>&nbsp;</span></div>
+      </div>
+      <div class="row">
+        <div class="data field"><span>Size description</span></div>
+        <div class="data value"><span><%= @sale.size_description %></span></div>
+        <div class="data note"><span>&nbsp;</span></div>
+      </div>
+    </main>
+  </div>
 </div>
