@@ -60,7 +60,8 @@ defmodule PriceRegister.PropertiesTest do
     end
 
     test "create_sale/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Properties.insert_sale(@invalid_attrs, Properties.sales_count())
+      assert {:error, %Ecto.Changeset{}} =
+               Properties.insert_sale(@invalid_attrs, Properties.sales_count())
     end
   end
 end

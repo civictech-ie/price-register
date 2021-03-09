@@ -14,7 +14,7 @@ defmodule PriceRegister.Repo.Migrations.CreateSales do
       add :description, :text, default: "", null: false
       add :size_description, :text, default: "", null: false
       add :source_row, :text, null: false
-      timestamps([type: :utc_datetime_usec])
+      timestamps(type: :utc_datetime_usec)
     end
 
     create index(:sales, [:inserted_at])

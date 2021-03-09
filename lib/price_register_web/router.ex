@@ -2,31 +2,31 @@ defmodule PriceRegisterWeb.Router do
   use PriceRegisterWeb, :router
 
   pipeline :browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_flash
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
+    plug(:accepts, ["html"])
+    plug(:fetch_session)
+    plug(:fetch_flash)
+    plug(:protect_from_forgery)
+    plug(:put_secure_browser_headers)
   end
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug(:accepts, ["json"])
   end
 
   scope "/", PriceRegisterWeb do
-    pipe_through :browser
+    pipe_through(:browser)
 
-    get "/info", PageController, :info
-    resources "/sales", SaleController, only: [:show, :index]
+    get("/info", PageController, :info)
+    resources("/sales", SaleController, only: [:show, :index])
 
-    get "/", SaleController, :index
+    get("/", SaleController, :index)
   end
 
   # Other scopes may use custom stacks.
   scope "/api", PriceRegisterWeb.API do
-    pipe_through :api
+    pipe_through(:api)
 
-    resources "/sales", SaleController, only: [:show, :index]
+    resources("/sales", SaleController, only: [:show, :index])
   end
 
   # Enables LiveDashboard only for development
@@ -40,8 +40,8 @@ defmodule PriceRegisterWeb.Router do
     import Phoenix.LiveDashboard.Router
 
     scope "/" do
-      pipe_through :browser
-      live_dashboard "/dashboard", metrics: PriceRegisterWeb.Telemetry
+      pipe_through(:browser)
+      live_dashboard("/dashboard", metrics: PriceRegisterWeb.Telemetry)
     end
   end
 end
