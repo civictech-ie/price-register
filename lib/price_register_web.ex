@@ -39,6 +39,8 @@ defmodule PriceRegisterWeb do
 
       # Include shared imports and aliases for views
       unquote(view_helpers())
+
+      use PriceRegisterWeb.Meta
     end
   end
 

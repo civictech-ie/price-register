@@ -3,6 +3,7 @@
     <input type="text" disabled value="<%= @request_path %>" />
   </div>
   <div class="pagination">
+    <a href="javascript:history.back()">&larr; back to listings</a>
   </div>
 </nav>
 

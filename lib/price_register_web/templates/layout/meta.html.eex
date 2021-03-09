@@ -1,0 +1,2 @@
+<title><%= get_metadata(@conn)[:title] %></title>
+<meta name="description" content="<%= get_metadata(@conn)[:description] %>" />

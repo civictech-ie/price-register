@@ -10,6 +10,11 @@ use Mix.Config
 config :price_register,
   ecto_repos: [PriceRegister.Repo]
 
+config :price_register, PriceRegisterWeb.Meta, %{
+  title: "Property Price Register API · Ireland",
+  description: "an API wrapper for ireland's residential property price register"
+}
+
 # Configures the endpoint
 config :price_register, PriceRegisterWeb.Endpoint,
   url: [host: "localhost"],

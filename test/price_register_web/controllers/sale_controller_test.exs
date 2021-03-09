@@ -11,11 +11,12 @@ defmodule PriceRegisterWeb.SaleControllerTest do
     size_description: "Greater than or equal to 38 sq metres and less than 125 sq metres",
     vat_inclusive: true,
     address: "25 Markievicz Heights, Sligo",
-    county: "Sligo"
+    county: "Sligo",
+    source_row: "201004001"
   }
 
   def fixture(:sale) do
-    {:ok, sale} = Properties.insert_sale(@create_attrs)
+    {:ok, sale} = Properties.insert_sale(@create_attrs, Properties.sales_count())
     sale
   end
 
@@ -25,8 +26,8 @@ defmodule PriceRegisterWeb.SaleControllerTest do
 
   describe "index" do
     test "lists all sales", %{conn: conn} do
-      conn = get(conn, Routes.sale_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
+      conn = get(conn, "/api/sales")
+      assert json_response(conn, 200)["metadata"]["total_count"] == 0
     end
   end
 
@@ -34,7 +35,7 @@ defmodule PriceRegisterWeb.SaleControllerTest do
     setup [:create_sale]
 
     test "renders sale when data is valid", %{conn: conn, sale: sale} do
-      conn = get(conn, Routes.sale_path(conn, :show, sale.id))
+      conn = get(conn, "/api/sales/#{sale.id}")
 
       assert %{
                "date" => "2010-04-17",
@@ -46,7 +47,7 @@ defmodule PriceRegisterWeb.SaleControllerTest do
                "size_description" =>
                  "Greater than or equal to 38 sq metres and less than 125 sq metres",
                "vat_inclusive" => true
-             } = json_response(conn, 200)["data"]
+             } = json_response(conn, 200)
     end
   end
 

@@ -3,6 +3,12 @@ defmodule PriceRegisterWeb.SaleView do
 
   alias PriceRegister.Cldr
 
+  def metadata(:show, %{sale: sale}),
+    do: %{
+      title: "#{sale.address} · Property Price Register API · Ireland",
+      description: "api endpoint for #{sale.address} sale details on #{sale.date |> format_date}"
+    }
+
   def format_date(nil), do: ""
 
   def format_date(%Date{year: year, month: month, day: day}) do

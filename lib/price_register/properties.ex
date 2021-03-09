@@ -12,44 +12,56 @@ defmodule PriceRegister.Properties do
 
   def most_recent_date do
     Repo.one(
-      from s in Sale,
+      from(s in Sale,
         order_by: {:desc, :date},
         select: fragment("date"),
         limit: 1
+      )
     )
   end
 
   def most_recent_update do
     Repo.one(
-      from s in Sale,
+      from(s in Sale,
         order_by: {:desc, :updated_at},
         select: fragment("updated_at"),
         limit: 1
+      )
+    )
+  end
+
+  def sales_count() do
+    Repo.one(
+      from(s in Sale,
+        select: fragment("count(*)")
+      )
     )
   end
 
   def sales_count(starts_on = %Date{}, ends_on = %Date{}) do
     Repo.one(
-      from s in Sale,
+      from(s in Sale,
         where: s.date >= ^starts_on,
         where: s.date <= ^ends_on,
         select: fragment("count(*)")
+      )
     )
   end
 
   def sale_at_index(starts_on = %Date{}, ends_on = %Date{}, index) do
     Repo.one(
-      from s in Sale,
+      from(s in Sale,
         where: s.date >= ^starts_on,
         where: s.date <= ^ends_on,
         order_by: {:desc, :inserted_at},
         offset: ^index,
         limit: 1
+      )
     )
   end
 
   def sales_count() do
-    Repo.one(from s in Sale, select: fragment("count(*)"))
+    Repo.one(from(s in Sale, select: fragment("count(*)")))
   end
 
   def list_sales() do
@@ -149,13 +161,14 @@ defmodule PriceRegister.Properties do
 
   def get_sale!(date, address, postal_code, county, price) do
     Repo.one(
-      from s in Sale,
+      from(s in Sale,
         where: s.date == ^date,
         where: s.address == ^address,
         where: s.postal_code == ^postal_code,
         where: s.county == ^county,
         where: s.price == ^price,
         limit: 1
+      )
     )
   end
 
@@ -164,7 +177,7 @@ defmodule PriceRegister.Properties do
       [{"update_at", updated_at}] ->
         updated_at
 
-      alt ->
+      _alt ->
         case most_recent_update() do
           %DateTime{} = dt -> dt |> DateTime.to_string()
           %NaiveDateTime{} = ndt -> ndt |> DateTime.from_naive!("Etc/UTC") |> DateTime.to_string()
