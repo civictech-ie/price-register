@@ -6,7 +6,7 @@ defmodule PriceRegisterWeb.SaleView do
   def metadata(:show, %{sale: sale}),
     do: %{
       title: "#{sale.address} · Property Price Register API · Ireland",
-      description: "api endpoint for #{sale.address} sale details on #{sale.date |> format_date}"
+      description: "api endpoint for #{sale.address}, sold on #{sale.date |> format_date} in #{ sale.county}"
     }
 
   def format_date(nil), do: ""
