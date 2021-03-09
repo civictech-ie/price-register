@@ -23,18 +23,22 @@ const application = Application.start();
 const context = require.context("./controllers", true, /\.js$/);
 application.load(definitionsFromContext(context));
 
-let scrollTop = 0;
+window.onload = function () {
+  let scrollTop = 0;
 
-addEventListener("turbo:click", ({ target }) => {
-  if (target.hasAttribute("data-turbo-preserve-scroll")) {
-    scrollTop = document.scrollingElement.scrollTop;
-  }
-});
+  addEventListener("turbo:click", ({ target }) => {
+    if (target.hasAttribute("data-turbo-preserve-scroll")) {
+      scrollTop = document.scrollingElement.scrollTop;
+    }
+  });
 
-addEventListener("turbo:load", () => {
-  if (scrollTop) {
-    document.scrollingElement.scrollTo(0, scrollTop);
-  }
+  addEventListener("turbo:load", () => {
+    if (scrollTop) {
+      document.scrollingElement.scrollTo(0, scrollTop);
+    }
 
-  scrollTop = 0;
-});
+    scrollTop = 0;
+  });
+
+  tippy(".class");
+};

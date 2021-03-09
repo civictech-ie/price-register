@@ -8,63 +8,69 @@
 
 <div class="view">
   <div class="list-view" >
-    <header>
-      <div class="row">
-        <div class="label field"><label>Field</label></div>
-        <div class="label value"><label>Value</label></div>
-        <div class="label note"><label>Notes</label></div>
-      </div>
-    </header>
     <main>
-      <div class="row">
-        <div class="data field"><span>UUID</span></div>
-        <div class="data value"><span><%= @sale.id %></span></div>
-        <div class="data note"><span>&nbsp;</span></div>
-      </div>
-      <div class="row">
-        <div class="data field"><span>Date</span></div>
-        <div class="data value"><span><%= @sale.date |> format_date %></span></div>
-        <div class="data note"><span>&nbsp;</span></div>
-      </div>
-      <div class="row">
-        <div class="data field"><span>Price</span></div>
-        <div class="data value"><span><%= @sale.price |> format_currency %></span></div>
-        <div class="data note"><span>Stored and returned in cents, not euros.</span></div>
-      </div>
-      <div class="row">
-        <div class="data field"><span>Address</span></div>
-        <div class="data value"><span><%= @sale.address %></span></div>
-        <div class="data note"><span>Not cleaned or normalised, so expect typos and errors.</span></div>
-      </div>
-      <div class="row">
-        <div class="data field"><span>Postal code</span></div>
-        <div class="data value"><span><%= @sale.postal_code %></span></div>
-        <div class="data note"><span>Dublin-only. Not to be confused with eircodes.</span></div>
-      </div>
-      <div class="row">
-        <div class="data field"><span>County</span></div>
-        <div class="data value"><span><%= @sale.county %></span></div>
-        <div class="data note"><span>&nbsp;</span></div>
-      </div>
-      <div class="row">
-        <div class="data field"><span>Full market</span></div>
-        <div class="data value"><span><%= @sale.full_market %></span></div>
-        <div class="data note"><span>Inverted from the source CSV&rsquo;s value to avoid confusing double negatives.</span></div>
-      </div>
-      <div class="row">
-        <div class="data field"><span>VAT Inclusive</span></div>
-        <div class="data value"><span><%= @sale.vat_inclusive %></span></div>
-        <div class="data note"><span>Also inverted &mdash; same as above.</span></div>
-      </div>
-      <div class="row">
-        <div class="data field"><span>Description</span></div>
-        <div class="data value"><span><%= @sale.description %></span></div>
-        <div class="data note"><span>&nbsp;</span></div>
-      </div>
-      <div class="row">
-        <div class="data field"><span>Size description</span></div>
-        <div class="data value"><span><%= @sale.size_description %></span></div>
-        <div class="data note"><span>&nbsp;</span></div>
+      <div class="sale-show">
+        <ul class="json">
+          <li>
+            <div class="data field"><span>id</span></div>
+            <div class="data value"><span><%= @sale.id %></span></div>
+            <div class="data note"><span>&nbsp;</span></div>
+          </li>
+          
+          <li>
+            <div class="data field"><span>date</span></div>
+            <div class="data value"><span><%= @sale.date |> format_date %></span></div>
+            <div class="data note"><span>&nbsp;</span></div>
+          </li>
+          
+          <li>
+            <div class="data field"><span>price</span></div>
+            <div class="data value"><span><%= @sale.price |> format_currency %></span></div>
+            <div class="data note"><span>Stored and returned in cents, not euros.</span></div>
+          </li>
+          
+          <li>
+            <div class="data field"><span>address</span></div>
+            <div class="data value"><span><%= @sale.address %></span></div>
+            <div class="data note"><span>Not cleaned or normalised, so expect typos and errors.</span></div>
+          </li>
+          
+          <li>
+            <div class="data field"><span>postal_code</span></div>
+            <div class="data value"><span><%= @sale.postal_code %></span></div>
+            <div class="data note"><span>Dublin-only. Not to be confused with eircodes.</span></div>
+          </li>
+          
+          <li>
+            <div class="data field"><span>county</span></div>
+            <div class="data value"><span><%= @sale.county %></span></div>
+            <div class="data note"><span>&nbsp;</span></div>
+          </li>
+          
+          <li>
+            <div class="data field"><span>full_market</span></div>
+            <div class="data value"><span><%= @sale.full_market %></span></div>
+            <div class="data note"><span>Inverted from the source CSV&rsquo;s value to avoid confusing double negatives.</span></div>
+          </li>
+          
+          <li>
+            <div class="data field"><span>vat_inclusive</span></div>
+            <div class="data value"><span><%= @sale.vat_inclusive %></span></div>
+            <div class="data note"><span>Also inverted &mdash; same as above.</span></div>
+          </li>
+          
+          <li>
+            <div class="data field"><span>description</span></div>
+            <div class="data value"><span><%= @sale.description %></span></div>
+            <div class="data note"><span>&nbsp;</span></div>
+          </li>
+          
+          <li>
+            <div class="data field"><span>size_description</span></div>
+            <div class="data value"><span><%= @sale.size_description %></span></div>
+            <div class="data note"><span>&nbsp;</span></div>
+          </li>
+        </ul>
       </div>
     </main>
   </div>

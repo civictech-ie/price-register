@@ -33,6 +33,70 @@
               <div class="data price"><span><%= format_currency(sale.price) %></span></div>
               <%= link "", to: Routes.sale_path(@conn, :show, sale.id), class: "link" %>
             </div>
+            <div class="sale-tooltip">
+              <header><code>GET /api/sales/<%=sale.id %></code></header>
+              <ul class="json">
+                <li>
+                  <div class="data field"><span>id</span></div>
+                  <div class="data value"><span><%= sale.id %></span></div>
+                  <div class="data note"><span>&nbsp;</span></div>
+                </li>
+                
+                <li>
+                  <div class="data field"><span>date</span></div>
+                  <div class="data value"><span><%= sale.date |> format_date %></span></div>
+                  <div class="data note"><span>&nbsp;</span></div>
+                </li>
+                
+                <li>
+                  <div class="data field"><span>price</span></div>
+                  <div class="data value"><span><%= sale.price |> format_currency %></span></div>
+                  <div class="data note"><span>Stored and returned in cents, not euros.</span></div>
+                </li>
+                
+                <li>
+                  <div class="data field"><span>address</span></div>
+                  <div class="data value"><span><%= sale.address %></span></div>
+                  <div class="data note"><span>Not cleaned or normalised, so expect typos and errors.</span></div>
+                </li>
+                
+                <li>
+                  <div class="data field"><span>postal_code</span></div>
+                  <div class="data value"><span><%= sale.postal_code %></span></div>
+                  <div class="data note"><span>Dublin-only. Not to be confused with eircodes.</span></div>
+                </li>
+                
+                <li>
+                  <div class="data field"><span>county</span></div>
+                  <div class="data value"><span><%= sale.county %></span></div>
+                  <div class="data note"><span>&nbsp;</span></div>
+                </li>
+                
+                <li>
+                  <div class="data field"><span>full_market</span></div>
+                  <div class="data value"><span><%= sale.full_market %></span></div>
+                  <div class="data note"><span>Inverted from the source CSV&rsquo;s value to avoid confusing double negatives.</span></div>
+                </li>
+                
+                <li>
+                  <div class="data field"><span>vat_inclusive</span></div>
+                  <div class="data value"><span><%= sale.vat_inclusive %></span></div>
+                  <div class="data note"><span>Also inverted &mdash; same as above.</span></div>
+                </li>
+                
+                <li>
+                  <div class="data field"><span>description</span></div>
+                  <div class="data value"><span><%= sale.description %></span></div>
+                  <div class="data note"><span>&nbsp;</span></div>
+                </li>
+                
+                <li>
+                  <div class="data field"><span>size_description</span></div>
+                  <div class="data value"><span><%= sale.size_description %></span></div>
+                  <div class="data note"><span>&nbsp;</span></div>
+                </li>
+              </ul>
+            </div>
           </li>
         <% end %>
       </ol>
