@@ -11,7 +11,7 @@ config :price_register, PriceRegister.Repo,
   pool: Ecto.Adapters.SQL.Sandbox
 
 if System.get_env("GITHUB_ACTIONS") do
-  config :counciltracker, Counciltracker.Repo,
+  config :price_register, PriceRegister.Repo,
     database: "price_register_test",
     username: "postgres",
     password: "postgres",
