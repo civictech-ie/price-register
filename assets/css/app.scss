@@ -301,8 +301,9 @@ body > main {
   .sale-tooltip {
     display: block;
     z-index: 99;
+    margin: 1px;
     background: var(--background);
-    border: 1px solid var(--ink);
+    box-shadow: 0 0 0 1px var(--ink);
     position: fixed;
     bottom: -24rem;
     right: 6rem;
@@ -437,7 +438,13 @@ body > main {
         content: ": ";
       }
     }
-    .data {
+    .value {
+      &:before {
+        content: '"';
+      }
+      &:after {
+        content: '",';
+      }
     }
   }
   .note {
