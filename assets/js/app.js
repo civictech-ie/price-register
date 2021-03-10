@@ -39,6 +39,4 @@ window.onload = function () {
 
     scrollTop = 0;
   });
-
-  tippy(".class");
 };
