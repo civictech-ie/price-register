@@ -51,7 +51,8 @@ defmodule PriceRegister.MixProject do
       {:httpoison, "~> 1.8"},
       {:appsignal_phoenix, "~> 2.0.0"},
       {:ex_cldr, "~> 2.0"},
-      {:ex_cldr_numbers, "~> 2.0"}
+      {:ex_cldr_numbers, "~> 2.0"},
+      {:corsica, "~> 1.1.3"}
     ]
   end
 
