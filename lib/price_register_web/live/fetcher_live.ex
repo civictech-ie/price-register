@@ -3,22 +3,33 @@ defmodule PriceRegisterWeb.FetcherLive do
 
   alias Phoenix.PubSub
 
-  def mount(_params, _session, socket) do
-    socket = assign(socket, :status, "Idle")
+  @table :fetcher
+  @topic "fetcher"
 
-    # subscribe to fetcher topic
-    PubSub.subscribe(PriceRegister.PubSub, "fetcher")
+  def mount(_params, _session, socket) do
+    [status: status] = :ets.lookup(@table, :status)
+
+    socket = assign(socket, :status, status)
+    socket = assign(socket, :sales_count, PriceRegister.Properties.sales_count())
+
+    PubSub.subscribe(PriceRegister.PubSub, @topic)
 
     {:ok, socket}
   end
 
-  def handle_info(%{status: status}, socket) do
+  def handle_info(%{status: _status}, socket) do
+    [status: status] = :ets.lookup(@table, :status)
+
+    socket = assign(socket, :status, status)
+    socket = assign(socket, :sales_count, PriceRegister.Properties.sales_count())
+
     {:noreply, assign(socket, :status, status)}
   end
 
   def render(assigns) do
     ~H"""
     <p>Status: <%= @status %></p>
+    <p>Sales: <%= @sales_count %></p>
     """
   end
 end

@@ -50,7 +50,10 @@ defmodule PriceRegister.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
-      {:plug_cowboy, "~> 2.5"}
+      {:plug_cowboy, "~> 2.5"},
+      {:httpoison, "~> 1.8"},
+      {:nimble_csv, "~> 1.2"},
+      {:elixir_mbcs, github: "woxtu/elixir-mbcs", tag: "0.1.3"}
     ]
   end
 

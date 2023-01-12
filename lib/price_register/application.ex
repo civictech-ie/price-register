@@ -20,7 +20,7 @@ defmodule PriceRegister.Application do
       PriceRegisterWeb.Endpoint,
       # Start a worker by calling: PriceRegister.Worker.start_link(arg)
       # {PriceRegister.Worker, arg}
-      PriceRegister.Fetcher
+      PriceRegister.FetcherScheduler
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

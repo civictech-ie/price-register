@@ -9,6 +9,13 @@ defmodule PriceRegister.Properties do
   alias PriceRegister.Properties.Sale
 
   @doc """
+  Returns the count of sales
+  """
+  def sales_count do
+    Repo.aggregate(Sale, :count, :id)
+  end
+
+  @doc """
   Returns the list of sales.
 
   ## Examples
@@ -19,6 +26,31 @@ defmodule PriceRegister.Properties do
   """
   def list_sales do
     Repo.all(Sale)
+  end
+
+  @doc """
+  Returns the list of sales between the beginning and end of the given month
+  """
+
+  def list_sales_for_month(date) do
+    beginning_of_month = date |> Date.beginning_of_month()
+    end_of_month = date |> Date.end_of_month()
+    Repo.all(
+      from s in Sale,
+      where: s.date_of_sale >= ^beginning_of_month and s.date_of_sale <= ^end_of_month
+    )
+  end
+
+  def insert_sales(sales) do
+    Repo.insert_all(Sale, sales)
+  end
+
+  def insert_sales_in_batches(sales) do
+    Repo.transaction(fn ->
+      Enum.each(Enum.chunk_every(sales, 1000), fn chunk ->
+        Repo.insert_all(Sale, chunk)
+      end)
+    end)
   end
 
   @doc """
@@ -87,6 +119,19 @@ defmodule PriceRegister.Properties do
   """
   def delete_sale(%Sale{} = sale) do
     Repo.delete(sale)
+  end
+
+  @doc """
+  Deletes the sales between the beginning and end of the given month
+  """
+
+  def delete_sales_for_month(date) do
+    beginning_of_month = date |> Date.beginning_of_month()
+    end_of_month = date |> Date.end_of_month()
+    Repo.delete_all(
+      from s in Sale,
+      where: s.date_of_sale >= ^beginning_of_month and s.date_of_sale <= ^end_of_month
+    )
   end
 
   @doc """

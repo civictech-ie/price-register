@@ -1,5 +1,5 @@
 defmodule PriceRegister.Properties.Sale do
-  use Ecto.Schema
+  use PriceRegister.Schema
   import Ecto.Changeset
 
   schema "sales" do
