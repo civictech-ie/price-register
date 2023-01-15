@@ -6,7 +6,7 @@ defmodule PriceRegister.FetcherScheduler do
 
   @table :fetcher
   @topic "fetcher"
-  @interval 360_000
+  @interval 1_800_000
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
