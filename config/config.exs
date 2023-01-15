@@ -51,6 +51,14 @@ config :tailwind,
     cd: Path.expand("../assets", __DIR__)
   ]
 
+# Configure AppSignal
+
+config :appsignal, :config,
+  otp_app: :price_register,
+  name: "priceregister.civictech.ie",
+  push_api_key: "b3b191f4-40c7-41f8-b540-48e5eb9ab642",
+  env: Mix.env()
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
@@ -62,4 +70,3 @@ config :phoenix, :json_library, Jason
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
-import_config "appsignal.exs"
