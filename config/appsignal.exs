@@ -1,4 +1,4 @@
-use Mix.Config
+use Config
 
 config :appsignal, :config,
   otp_app: :price_register,
