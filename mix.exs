@@ -54,7 +54,9 @@ defmodule PriceRegister.MixProject do
       {:httpoison, "~> 1.8"},
       {:nimble_csv, "~> 1.2"},
       {:quarto, "~> 1.1.7"},
-      {:elixir_mbcs, github: "woxtu/elixir-mbcs", tag: "0.1.3"}
+      {:elixir_mbcs, github: "woxtu/elixir-mbcs", tag: "0.1.3"},
+      {:appsignal, "~> 2.4"},
+      {:appsignal_phoenix, "~> 2.2"}
     ]
   end
 
