@@ -32,7 +32,7 @@ defmodule PriceRegister.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.0-rc.0", override: true},
+      {:phoenix, "~> 1.7.0-rc.2", override: true},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
@@ -53,6 +53,7 @@ defmodule PriceRegister.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:httpoison, "~> 1.8"},
       {:nimble_csv, "~> 1.2"},
+      {:quarto, "~> 1.1.7"},
       {:elixir_mbcs, github: "woxtu/elixir-mbcs", tag: "0.1.3"}
     ]
   end

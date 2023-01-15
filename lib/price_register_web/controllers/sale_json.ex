@@ -4,8 +4,8 @@ defmodule PriceRegisterWeb.SaleJSON do
   @doc """
   Renders a list of sales.
   """
-  def index(%{sales: sales}) do
-    %{data: for(sale <- sales, do: data(sale))}
+  def index(%{sales: sales, metadata: metadata}) do
+    %{data: for(sale <- sales, do: data(sale)), metadata: metadata}
   end
 
   @doc """

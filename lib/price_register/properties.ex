@@ -5,7 +5,6 @@ defmodule PriceRegister.Properties do
 
   import Ecto.Query, warn: false
   alias PriceRegister.Repo
-
   alias PriceRegister.Properties.Sale
 
   @doc """
@@ -24,8 +23,75 @@ defmodule PriceRegister.Properties do
       [%Sale{}, ...]
 
   """
-  def list_sales do
-    Repo.all(Sale)
+  def list_sales() do
+    %{
+      entries: entries,
+      metadata: %{after: after_key, before: before_key, limit: limit, total_count: total_count}
+    } =
+      Sale
+      |> order_by({:desc, :inserted_at})
+      |> Repo.paginate(include_total_count: true, total_count_limit: :infinity)
+
+    %{
+      entries: entries,
+      metadata: %{
+        after: after_key,
+        before: before_key,
+        limit: limit,
+        total_count: total_count,
+        updated_at: get_updated_at()
+      }
+    }
+  end
+
+  def list_sales(after: after_cursor) do
+    %{
+      entries: entries,
+      metadata: %{after: after_key, before: before_key, limit: limit, total_count: total_count}
+    } =
+      Sale
+      |> order_by({:desc, :inserted_at})
+      |> Repo.paginate(
+        after: after_cursor,
+        include_total_count: true,
+        total_count_limit: :infinity
+      )
+
+    %{
+      entries: entries,
+      metadata: %{
+        after: after_key,
+        before: before_key,
+        limit: limit,
+        total_count: total_count,
+        updated_at: get_updated_at()
+      }
+    }
+  end
+
+  def list_sales(before: before_cursor) do
+    %{
+      entries: entries,
+      metadata: %{after: after_key, before: before_key, limit: limit, total_count: total_count}
+    } =
+      Sale
+      |> order_by({:desc, :inserted_at})
+      |> Repo.paginate(
+        before: before_cursor,
+        include_total_count: true,
+        total_count_limit: :infinity
+      )
+
+    %{
+      entries: entries,
+      metadata: %{
+        after: after_key,
+        before: before_key,
+        limit: limit,
+        total_count: total_count,
+        updated_at: get_updated_at()
+      }
+    }
   end
 
   @doc """
@@ -145,5 +211,9 @@ defmodule PriceRegister.Properties do
   """
   def change_sale(%Sale{} = sale, attrs \\ %{}) do
     Sale.changeset(sale, attrs)
+  end
+
+  defp get_updated_at do
+    Repo.aggregate(Sale, :max, :updated_at)
   end
 end
