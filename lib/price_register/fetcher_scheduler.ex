@@ -4,8 +4,8 @@ defmodule PriceRegister.FetcherScheduler do
   alias Phoenix.PubSub
   alias PriceRegister.Fetcher
 
-  @table :fetcher
-  @topic "fetcher"
+  @table :fetcher_status
+  @topic "fetcher_status"
   @interval 1_800_000
 
   def start_link(args) do
@@ -22,7 +22,7 @@ defmodule PriceRegister.FetcherScheduler do
   defp setup_ets_table_for_status_and_updated() do
     # if table doesn't exist, create it
     if :ets.whereis(@table) == :undefined do
-      :ets.new(@table, [:set, :named_table, :protected])
+      :ets.new(@table, [:set, :named_table, :public])
       :ets.insert(@table, {:status, "Idle"})
       :ets.insert(@table, {:updated, nil})
     end

@@ -3,8 +3,8 @@ defmodule PriceRegisterWeb.FetcherLive do
 
   alias Phoenix.PubSub
 
-  @table :fetcher
-  @topic "fetcher"
+  @table :fetcher_status
+  @topic "fetcher_status"
 
   def mount(_params, _session, socket) do
     [status: status] = :ets.lookup(@table, :status)

@@ -10,6 +10,9 @@ defmodule PriceRegister.Fetcher do
   @first_date ~D[2010-01-01]
   @wait_time 5000
 
+  @table :fetcher_status
+  @topic "fetcher_status"
+
   @doc """
   Fetches the data from the property price register.
   """
@@ -18,16 +21,20 @@ defmodule PriceRegister.Fetcher do
   end
 
   defp fetch_month_and_keep_going(%Date{} = date) do
-    Process.sleep(@wait_time) # slow down the requests to avoid being blocked
+    # slow down the requests to avoid being blocked
+    Process.sleep(@wait_time)
 
     fetch_and_insert_a_month(date)
     next_month = date |> Date.end_of_month() |> Date.add(1)
+
     if next_month < Date.utc_today() do
       fetch_month_and_keep_going(next_month)
     end
   end
 
   defp fetch_and_insert_a_month(date) do
+    update_fetcher_status("Fetching #{Date.to_string(date)}"
+
     fetch_data_for_month(date)
     |> parse_csv
     |> insert_data_if_different(date)
@@ -36,6 +43,7 @@ defmodule PriceRegister.Fetcher do
   # if data for this month is different to what we have in the database, delete all the data for this month and insert the new data
   defp insert_data_if_different(data, date) do
     if data_is_different?(data, date) do
+      update_fetcher_status("Inserting #{Date.to_string(date)}"
       Properties.delete_sales_for_month(date)
       insert_data(data)
     end
@@ -43,12 +51,22 @@ defmodule PriceRegister.Fetcher do
 
   defp data_is_different?(prospective_data, date) do
     existing_data = Properties.list_sales_for_month(date)
-    (different_length?(prospective_data, existing_data) || different_data?(prospective_data, existing_data))
+
+    different_length?(prospective_data, existing_data) ||
+      different_data?(prospective_data, existing_data)
   end
 
   defp different_data?(prospective_data, existing_data) do
-    prospective_data = Enum.sort_by(prospective_data, fn row -> {row.price_in_cents, row.date_of_sale, row.address} end)
-    existing_data = Enum.sort_by(existing_data, fn row -> {row.price_in_cents, row.date_of_sale, row.address} end)
+    prospective_data =
+      Enum.sort_by(prospective_data, fn row ->
+        {row.price_in_cents, row.date_of_sale, row.address}
+      end)
+
+    existing_data =
+      Enum.sort_by(existing_data, fn row ->
+        {row.price_in_cents, row.date_of_sale, row.address}
+      end)
+
     check_row_is_different_or_keep_going(0, prospective_data, existing_data)
   end
 
@@ -60,7 +78,9 @@ defmodule PriceRegister.Fetcher do
     false
   end
 
-  defp check_row_is_different_or_keep_going(index, [prospective_row | prospective_data], [existing_row | existing_data]) do
+  defp check_row_is_different_or_keep_going(index, [prospective_row | prospective_data], [
+         existing_row | existing_data
+       ]) do
     if different_row?(prospective_row, existing_row) do
       true
     else
@@ -87,7 +107,8 @@ defmodule PriceRegister.Fetcher do
   end
 
   defp fetch_data_for_month(date) do
-    %{body: body} = url_for_month(date)
+    %{body: body} =
+      url_for_month(date)
       |> HTTPoison.get!(%{}, hackney: [:insecure])
 
     body
@@ -115,7 +136,17 @@ defmodule PriceRegister.Fetcher do
   defp row_to_sale_map(row) do
     row
     |> convert_values()
-    |> Enum.zip([:date_of_sale, :address, :county, :eircode, :price_in_cents, :not_full_market_price, :vat_exclusive, :description_of_property, :property_size_description])
+    |> Enum.zip([
+      :date_of_sale,
+      :address,
+      :county,
+      :eircode,
+      :price_in_cents,
+      :not_full_market_price,
+      :vat_exclusive,
+      :description_of_property,
+      :property_size_description
+    ])
     |> Enum.into(%{}, fn {value, key} -> {key, value} end)
     |> Map.update!(:date_of_sale, &parse_date/1)
     |> Map.update!(:price_in_cents, &parse_price/1)
@@ -130,7 +161,9 @@ defmodule PriceRegister.Fetcher do
   end
 
   defp parse_date(date_str) do
-    [day, month, year] = date_str |> normalise_text() |> String.split("/") |> Enum.map(&String.to_integer/1)
+    [day, month, year] =
+      date_str |> normalise_text() |> String.split("/") |> Enum.map(&String.to_integer/1)
+
     Date.new!(year, month, day)
   end
 
@@ -161,5 +194,10 @@ defmodule PriceRegister.Fetcher do
     sales
     |> Enum.map(fn sale -> Map.put(sale, :inserted_at, DateTime.utc_now()) end)
     |> Enum.map(fn sale -> Map.put(sale, :updated_at, DateTime.utc_now()) end)
+  end
+
+  defp update_fetcher_status(str) do
+    :ets.insert(@table, {:status, str})
+    PubSub.broadcast(PriceRegister.PubSub, @topic, %{status: str})
   end
 end
