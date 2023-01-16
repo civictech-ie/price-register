@@ -33,7 +33,7 @@ defmodule PriceRegister.Fetcher do
   end
 
   defp fetch_and_insert_a_month(date) do
-    update_fetcher_status("Fetching #{Date.to_string(date)}"
+    update_fetcher_status("Fetching #{Date.to_string(date)}")
 
     fetch_data_for_month(date)
     |> parse_csv
