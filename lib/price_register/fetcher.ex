@@ -43,7 +43,7 @@ defmodule PriceRegister.Fetcher do
   # if data for this month is different to what we have in the database, delete all the data for this month and insert the new data
   defp insert_data_if_different(data, date) do
     if data_is_different?(data, date) do
-      update_fetcher_status("Inserting #{Date.to_string(date)}"
+      update_fetcher_status("Inserting #{Date.to_string(date)}")
       Properties.delete_sales_for_month(date)
       insert_data(data)
     end
