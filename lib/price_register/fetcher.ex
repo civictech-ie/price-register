@@ -3,12 +3,13 @@ defmodule PriceRegister.Fetcher do
   The Fetcher module is responsible for fetching the data from the property price register.
   """
 
+  alias Phoenix.PubSub
   alias PriceRegister.Properties
   alias NimbleCSV.RFC4180, as: CSV
 
   @base_url "https://propertypriceregister.ie/website/npsra/ppr/npsra-ppr.nsf/Downloads/"
   @first_date ~D[2010-01-01]
-  @wait_time 2_500
+  @wait_time 2_000
 
   @table :fetcher_status
   @topic "fetcher_status"
@@ -22,7 +23,7 @@ defmodule PriceRegister.Fetcher do
 
   defp fetch_month_and_keep_going(%Date{} = date) do
     # slow down the requests to avoid being blocked
-    # Process.sleep(@wait_time)
+    Process.sleep(@wait_time)
 
     fetch_and_insert_a_month(date)
     next_month = date |> Date.end_of_month() |> Date.add(1)

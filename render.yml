@@ -1,0 +1,25 @@
+databases:
+  - name: price-register-pg
+    databaseName: price-register
+    user: price-register
+    region: frankfurt
+
+services:
+  - type: web
+    name: price-register-web
+    env: ruby
+    region: frankfurt
+    buildCommand: './bin/render-build.sh'
+    startCommand: 'bundle exec puma -C config/puma.rb'
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: price-register-pg
+          property: connectionString
+      - fromGroup: price-register-env
+
+envVarGroups:
+  - name: price-register-env
+    envVars:
+      - key: RAILS_MASTER_KEY
+        sync: false
