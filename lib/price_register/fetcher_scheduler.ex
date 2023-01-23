@@ -14,8 +14,7 @@ defmodule PriceRegister.FetcherScheduler do
 
   def init(state) do
     setup_ets_table_for_status_and_updated()
-    # schedule_fetch()
-    Process.send_after(self(), :fetch, 1_00)
+    schedule_fetch()
     {:ok, state}
   end
 
