@@ -10,6 +10,7 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :price_register, PriceRegisterWeb.Endpoint,
+  url: [host: System.get_env("RENDER_EXTERNAL_HOSTNAME") || "localhost", port: 80],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Configures Swoosh API Client
@@ -22,7 +23,3 @@ config :logger, level: :info
 # of environment variables, is done on config/runtime.exs.
 
 config :appsignal, :config, active: true
-
-config :price_register, PriceRegisterWeb.Endpoint,
-  url: [host: System.get_env("RENDER_EXTERNAL_HOSTNAME") || "localhost", port: 80],
-  cache_static_manifest: "priv/static/cache_manifest.json"
