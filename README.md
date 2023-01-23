@@ -21,9 +21,6 @@ git clone https://github.com/civictech-ie/price-register.git
 cd price-register
 mix deps.get
 mix ecto.setup
-cd assets
-npm install
-cd ..
 mix phx.server
 ```
 
