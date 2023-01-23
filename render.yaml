@@ -1,7 +1,7 @@
 databases:
   - name: price-register-pg
-    databaseName: price-register
-    user: price-register
+    databaseName: price_register
+    user: price_register
     region: frankfurt
 
 services:
