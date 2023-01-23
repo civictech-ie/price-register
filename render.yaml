@@ -3,11 +3,13 @@ databases:
     databaseName: price_register
     user: price_register
     region: frankfurt
+    plan: standard
 
 services:
   - type: web
     name: price-register-web
-    env: ruby
+    env: elixir
+    plan: starter
     region: frankfurt
     buildCommand: './build.sh'
     startCommand: '_build/prod/rel/price_register/bin/price_register start'
