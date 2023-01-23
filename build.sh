@@ -9,11 +9,10 @@ MIX_ENV=prod mix compile
 # Compile assets
 MIX_ENV=prod mix assets.deploy
 
-# Custom tasks (like DB migrations)
-MIX_ENV=prod mix ecto.migrate
+rm -rf "_build"
 
-# Finally run the server
-MIX_ENV=prod mix release --overwrite
+# Create the release
+MIX_ENV=prod mix release
 
 # Run migrations
 _build/prod/rel/price_register/bin/price_register eval "PriceRegister.Release.migrate"

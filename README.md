@@ -1,7 +1,5 @@
 # property price register api
 
-[![Tests](https://github.com/civictech-ie/price-register/actions/workflows/test.yml/badge.svg)](https://github.com/civictech-ie/price-register/actions/workflows/test.yml)
-
 This is a thin API layer on top of the CSV data provided by the <a href="https://www.propertypriceregister.ie">Property Services Regulatory Authority</a>. The PSRA&rsquo;s CSVs have some funny encoding (CP1252), a misconfigured SSL certificate, and are generally a bit annoying to query directly. This service queries the CSVs and provides them here with a more standard JSON API. It doesn&rsquo;t do any normalising or cleaning of the address or description fields, so any errors present on the register itself will be present here.
 
 There are a bunch of caveats about the data on the <a href="https://www.propertypriceregister.ie">PSRA&rsquo;s price register site</a>, so look for answers there if you&rsquo;re curious.
