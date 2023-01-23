@@ -12,7 +12,7 @@ services:
     plan: starter
     region: frankfurt
     buildCommand: './build.sh'
-    startCommand: '_build/prod/rel/price_register/bin/price_register start'
+    startCommand: 'PHX_SERVER=true _build/prod/rel/price_register/bin/price_register start'
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -29,3 +29,5 @@ envVarGroups:
         value: 1.14.3
       - key: ERLANG_VERSION
         value: 25.2
+
+domains:
