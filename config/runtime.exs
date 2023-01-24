@@ -90,8 +90,7 @@ if config_env() == :prod do
   # We also recommend setting `force_ssl` in your endpoint, ensuring
   # no data is ever sent via http, always redirecting to https:
   #
-  #     config :price_register, PriceRegisterWeb.Endpoint,
-  #       force_ssl: [hsts: true]
+  config :price_register, PriceRegisterWeb.Endpoint, force_ssl: [hsts: true]
   #
   # Check `Plug.SSL` for all available options in `force_ssl`.
 
