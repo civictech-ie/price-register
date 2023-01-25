@@ -26,9 +26,10 @@ defmodule PriceRegister.Fetcher do
     Process.sleep(@wait_time)
 
     fetch_and_insert_a_month(date)
-    next_month = date |> Date.end_of_month() |> Date.add(1)
+    # set next_month to a month after date
+    next_month = date |> Date.end_of_month() |> Date.add(1) |> Date.beginning_of_month()
 
-    if next_month < Date.utc_today() do
+    if Date.compare(next_month, Date.utc_today()) == :lt do
       fetch_month_and_keep_going(next_month)
     end
   end
