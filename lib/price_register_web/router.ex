@@ -18,8 +18,9 @@ defmodule PriceRegisterWeb.Router do
   scope "/", PriceRegisterWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    get "/", SaleController, :index
     live "/fetcher", FetcherLive
+    resources "/sales", SaleController, only: [:index, :show]
   end
 
   scope "/api", PriceRegisterWeb do

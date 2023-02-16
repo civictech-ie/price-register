@@ -6,7 +6,7 @@ defmodule PriceRegister.FetcherScheduler do
 
   @table :fetcher_status
   @topic "fetcher_status"
-  @interval 1_800_000
+  @interval 60 * 60 * 24 * 7
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -14,6 +14,7 @@ defmodule PriceRegister.FetcherScheduler do
 
   def init(state) do
     setup_ets_table_for_status_and_updated()
+    Process.send_after(self(), :fetch, 0)
     schedule_fetch()
     {:ok, state}
   end

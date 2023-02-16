@@ -26,7 +26,6 @@ defmodule PriceRegister.Fetcher do
     Process.sleep(@wait_time)
 
     fetch_and_insert_a_month(date)
-    # set next_month to a month after date
     next_month = date |> Date.end_of_month() |> Date.add(1) |> Date.beginning_of_month()
 
     if Date.compare(next_month, Date.utc_today()) == :lt do
@@ -34,6 +33,7 @@ defmodule PriceRegister.Fetcher do
     end
   end
 
+  # for some reason this is happening for february 2023
   defp fetch_and_insert_a_month(date) do
     update_fetcher_status("Fetching #{Date.to_string(date)}")
 
@@ -131,12 +131,13 @@ defmodule PriceRegister.Fetcher do
 
   defp raw_data_to_sale_map(rows) when is_list(rows) do
     rows
+    |> Enum.with_index()
     |> Enum.map(&row_to_sale_map/1)
   end
 
   # takes a row of data and converts it into a map
-  defp row_to_sale_map(row) do
-    row
+  defp row_to_sale_map({row_data, row_index}) do
+    row_data
     |> convert_values()
     |> Enum.zip([
       :date_of_sale,
@@ -156,6 +157,7 @@ defmodule PriceRegister.Fetcher do
     |> Map.update!(:vat_exclusive, &parse_boolean/1)
     |> Map.update!(:description_of_property, &parse_text/1)
     |> Map.update!(:property_size_description, &parse_text/1)
+    |> add_source_row(row_index)
   end
 
   defp convert_values(row) when is_list(row) do
@@ -169,6 +171,7 @@ defmodule PriceRegister.Fetcher do
     Date.new!(year, month, day)
   end
 
+  # this will fail if there aren't two trailing zeroes on the end of the price
   defp parse_price("€" <> price_str)
        when is_binary(price_str) do
     price_str
@@ -201,5 +204,16 @@ defmodule PriceRegister.Fetcher do
   defp update_fetcher_status(str) do
     :ets.insert(@table, {:status, str})
     PubSub.broadcast(PriceRegister.PubSub, @topic, %{status: str})
+  end
+
+  defp add_source_row(row, row_index) do
+    Map.put(row, :source_row, generate_source_row(row.date_of_sale, row_index))
+  end
+
+  # generate an index that looks like YYYY-MM-index
+  defp generate_source_row(date_of_sale, row_index) do
+    month = date_of_sale.month |> Integer.to_string() |> String.pad_leading(2, "0")
+    year = date_of_sale.year |> Integer.to_string()
+    "#{year}-#{month}-#{row_index}"
   end
 end
