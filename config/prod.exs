@@ -10,8 +10,8 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :price_register, PriceRegisterWeb.Endpoint,
-  # url: [host: System.get_env("RENDER_EXTERNAL_HOSTNAME") || "localhost", port: 80],
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  url: [host: System.get_env("RENDER_EXTERNAL_HOSTNAME") || "localhost", port: 80],
+  cache_static_manifest: "priv/static/cache_manifest.json",
   check_origin: :conn
 
 # Configures Swoosh API Client
