@@ -29,7 +29,7 @@ defmodule PriceRegister.Properties do
       metadata: %{after: after_key, before: before_key, limit: limit, total_count: total_count}
     } =
       Sale
-      |> order_by({:desc, :inserted_at})
+      |> order_by({:desc, :source_row})
       |> Repo.paginate(include_total_count: true, total_count_limit: :infinity)
 
     %{
@@ -50,7 +50,7 @@ defmodule PriceRegister.Properties do
       metadata: %{after: after_key, before: before_key, limit: limit, total_count: total_count}
     } =
       Sale
-      |> order_by({:desc, :inserted_at})
+      |> order_by({:desc, :source_row})
       |> Repo.paginate(
         after: after_cursor,
         include_total_count: true,
@@ -75,7 +75,7 @@ defmodule PriceRegister.Properties do
       metadata: %{after: after_key, before: before_key, limit: limit, total_count: total_count}
     } =
       Sale
-      |> order_by({:desc, :inserted_at})
+      |> order_by({:desc, :source_row})
       |> Repo.paginate(
         before: before_cursor,
         include_total_count: true,
@@ -101,9 +101,12 @@ defmodule PriceRegister.Properties do
   def list_sales_for_month(date) do
     beginning_of_month = date |> Date.beginning_of_month()
     end_of_month = date |> Date.end_of_month()
+
+    # order by source_row
     Repo.all(
       from s in Sale,
-      where: s.date_of_sale >= ^beginning_of_month and s.date_of_sale <= ^end_of_month
+        where: s.date_of_sale >= ^beginning_of_month and s.date_of_sale <= ^end_of_month,
+        order_by: [asc: s.source_row]
     )
   end
 
@@ -194,9 +197,10 @@ defmodule PriceRegister.Properties do
   def delete_sales_for_month(date) do
     beginning_of_month = date |> Date.beginning_of_month()
     end_of_month = date |> Date.end_of_month()
+
     Repo.delete_all(
       from s in Sale,
-      where: s.date_of_sale >= ^beginning_of_month and s.date_of_sale <= ^end_of_month
+        where: s.date_of_sale >= ^beginning_of_month and s.date_of_sale <= ^end_of_month
     )
   end
 
