@@ -23,8 +23,7 @@ config :price_register, PriceRegisterWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "FcNR51iuQRCZ5zxUv+Qx6FPivmyScHfPsAeHIbZxhuUt7xzJTj1T/mwZ1T7xn4Mt",
   watchers: [
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
   ]
 
 # ## SSL Support
