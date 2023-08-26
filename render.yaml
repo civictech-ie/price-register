@@ -26,6 +26,6 @@ envVarGroups:
       - key: SECRET_KEY_BASE
         sync: false
       - key: ELIXIR_VERSION
-        value: 1.14.3
+        value: 1.15
       - key: ERLANG_VERSION
-        value: 25.2
+        value: 26.0
