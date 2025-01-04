@@ -29,8 +29,8 @@ jobs:
 
     strategy:
       matrix:
-        elixir: [1.13.4, 1.14.3]
-        otp: [24.3, 25.1]
+        elixir: [1.18]
+        otp: [27.2]
 
     steps:
       - name: Checkout code

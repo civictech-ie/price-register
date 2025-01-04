@@ -16,11 +16,13 @@
   </nav>
 
   <div class="table__header">
-    <div>Date of Sale</div>
-    <div>Address</div>
-    <div>County</div>
-    <div>Eircode</div>
-    <div>Price</div>
+    <div class="table__row">
+      <div class="table__cell">Date of Sale</div>
+      <div class="table__cell">Address</div>
+      <div class="table__cell">County</div>
+      <div class="table__cell">Eircode</div>
+      <div class="table__cell">Price</div>
+    </div>
   </div>
 
   <div class="table__rows">
@@ -31,7 +33,6 @@
         <div class="table__cell">{residential_sale.county}</div>
         <div class="table__cell">{residential_sale.eircode}</div>
         <div class="table__cell">€{residential_sale.price_in_euros}</div>
-        <div class="table__cell">{residential_sale.not_full_market_price}</div>
       </div>
     <% end %>
   </div>

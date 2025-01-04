@@ -5,7 +5,7 @@ defmodule PprApi.MixProject do
     [
       app: :ppr_api,
       version: "0.1.0",
-      elixir: "~> 1.14",
+      elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -42,7 +42,6 @@ defmodule PprApi.MixProject do
       {:floki, ">= 0.30.0"},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
       {:swoosh, "~> 1.5"},
       {:finch, "~> 0.13"},
       {:telemetry_metrics, "~> 1.0"},
@@ -74,10 +73,9 @@ defmodule PprApi.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind ppr_api", "esbuild ppr_api"],
+      "assets.setup": ["esbuild.install --if-missing"],
+      "assets.build": ["esbuild ppr_api"],
       "assets.deploy": [
-        "tailwind ppr_api --minify",
         "esbuild ppr_api --minify",
         "phx.digest"
       ]

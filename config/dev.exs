@@ -23,8 +23,7 @@ config :ppr_api, PprApiWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "UGJHgDI/2B71vShPnjLoIK46cfdczq8urfE23WW2H96G96ixMxpkOr5U2d6MdIr7",
   watchers: [
-    esbuild: {Esbuild, :install_and_run, [:ppr_api, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:ppr_api, ~w(--watch)]}
+    esbuild: {Esbuild, :install_and_run, [:ppr_api, ~w(--sourcemap=inline --watch)]}
   ]
 
 # ## SSL Support
