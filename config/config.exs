@@ -7,18 +7,20 @@
 # General application configuration
 import Config
 
-config :price_register,
-  ecto_repos: [PriceRegister.Repo]
+config :ppr_api,
+  ecto_repos: [PprApi.Repo],
+  generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
-config :price_register, PriceRegisterWeb.Endpoint,
+config :ppr_api, PprApiWeb.Endpoint,
   url: [host: "localhost"],
+  adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    formats: [html: PriceRegisterWeb.ErrorHTML, json: PriceRegisterWeb.ErrorJSON],
+    formats: [html: PprApiWeb.ErrorHTML, json: PprApiWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: PriceRegister.PubSub,
-  live_view: [signing_salt: "y1LwZ2BI"]
+  pubsub_server: PprApi.PubSub,
+  live_view: [signing_salt: "A5duZ7lj"]
 
 # Configures the mailer
 #
@@ -27,30 +29,40 @@ config :price_register, PriceRegisterWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :price_register, PriceRegister.Mailer, adapter: Swoosh.Adapters.Local
+config :ppr_api, PprApi.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.14.41",
-  default: [
+  version: "0.17.11",
+  ppr_api: [
     args:
       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
-# Configure AppSignal
-
-config :appsignal, :config,
-  otp_app: :price_register,
-  name: "priceregister.civictech.ie",
-  push_api_key: "b3b191f4-40c7-41f8-b540-48e5eb9ab642",
-  env: Mix.env()
+# Configure tailwind (the version is required)
+config :tailwind,
+  version: "3.4.3",
+  ppr_api: [
+    args: ~w(
+      --config=tailwind.config.js
+      --input=css/app.css
+      --output=../priv/static/assets/app.css
+    ),
+    cd: Path.expand("../assets", __DIR__)
+  ]
 
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
+
+config :ppr_api, PprApi.Scheduler,
+  jobs: [
+    {"* * * * *", {PprApi.Fetches, :fetch_latest_sales, []}},
+    {"0 1 * * 6", {PprApi.Fetches, :fetch_all_sales, [true]}}
+  ]
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason

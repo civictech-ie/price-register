@@ -6,15 +6,13 @@ There are a bunch of caveats about the data on the <a href="https://www.property
 
 The API only covers residential properties. Maybe you want to add commercial properties? <a href="https://www.github.com/civictech-ie/price-register">Go ahead</a>.
 
-I made a public site primarily to illustrate how one might interact with this API. It&rsquo;s generally what you'd expect, I hope. <code>GET /api/sales</code> will return a list of JSON objects. <code>GET /api/sales/:id</code> will return a single JSON sale object. The <code>:id</code> is a uuid, so it's not guessable – you'll need to <code>GET /api/sales</code> to find them.
-
-At the moment, the list endpoint only takes <code>before</code> or <code>after</code> params to page around &mdash; no filtering or sorting yet. If you want to do that, you can page through the sales and ingest them into your own database. And then go wild. You do you.
+I made a public site primarily to illustrate how one might interact with this API. It&rsquo;s generally what you'd expect, I hope. <code>GET /api/v1/residential/sales</code> will return a list of JSON objects.
 
 ## development
 
-It's pretty straightforward to run the app yourself. It's a typical [Elixir](https://elixir-lang.org)/[Phoenix](https://www.phoenixframework.org) app with a GenServer for polling and consuming the CSVs from the PSRA.
+It's pretty straightforward to run the app yourself. It's a typical [Elixir](https://elixir-lang.org)/[Phoenix](https://www.phoenixframework.org) app that fetches and consumes CSVs from the PSRA.
 
-You'll need Elixir and PostgreSQL installed.
+You'll need Elixir, Erlang and PostgreSQL installed.
 
 ```
 git clone https://github.com/civictech-ie/price-register.git
@@ -24,11 +22,7 @@ mix ecto.setup
 mix phx.server
 ```
 
-Now you can visit [`localhost:4000`](http://localhost:4000) and it should be working.
-
-## deployment
-
-It's deployed at [Render](https://www.render.com) and I'll keep an eye to make sure it can handle the load the API is getting. If you're planning on making a ton of requests (eg querying directly from a popular client-side app), you might give me a heads up, or, better yet, set up your own deployment. It's very easy...
+Now you can visit [`localhost:4000`](http://localhost:4000) and it should be working. It might run a bit hot while it does its initial fetch from the PSRA.
 
 ## contributing
 

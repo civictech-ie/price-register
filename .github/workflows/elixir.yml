@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ppr_api_test
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    strategy:
+      matrix:
+        elixir: [1.13.4, 1.14.3]
+        otp: [24.3, 25.1]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Set up the database
+        run: |
+          mix ecto.create
+          mix ecto.migrate
+        env:
+          MIX_ENV: test
+          DATABASE_URL: ecto://postgres:postgres@localhost/ppr_api_test
+
+      - name: Run tests
+        run: mix test
+        env:
+          MIX_ENV: test

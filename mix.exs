@@ -1,11 +1,11 @@
-defmodule PriceRegister.MixProject do
+defmodule PprApi.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :price_register,
+      app: :ppr_api,
       version: "0.1.0",
-      elixir: "~> 1.15",
+      elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -18,7 +18,7 @@ defmodule PriceRegister.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {PriceRegister.Application, []},
+      mod: {PprApi.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end
@@ -32,32 +32,33 @@ defmodule PriceRegister.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.7"},
-      {:phoenix_ecto, "~> 4.4"},
+      {:phoenix, "~> 1.7.18"},
+      {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},
-      {:phoenix_html, "~> 3.3"},
+      {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.19.5"},
-      {:heroicons, "~> 0.5"},
-      {:floki, ">= 0.30.0", only: :test},
-      {:phoenix_live_dashboard, "~> 0.8.1"},
-      {:esbuild, "~> 0.5", runtime: Mix.env() == :dev},
-      {:swoosh, "~> 1.3"},
+      {:phoenix_live_view, "~> 1.0.0"},
+      {:floki, ">= 0.30.0"},
+      {:phoenix_live_dashboard, "~> 0.8.3"},
+      {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
+      {:swoosh, "~> 1.5"},
       {:finch, "~> 0.13"},
-      {:telemetry_metrics, "~> 0.6"},
+      {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
-      {:gettext, "~> 0.20"},
+      {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
-      {:plug_cowboy, "~> 2.5"},
+      {:dns_cluster, "~> 0.1.1"},
+      {:bandit, "~> 1.5"},
       {:httpoison, "~> 1.8"},
       {:nimble_csv, "~> 1.2"},
-      {:quarto, "~> 1.1.7"},
       {:elixir_mbcs, github: "woxtu/elixir-mbcs", tag: "0.1.3"},
-      {:appsignal, "~> 2.4"},
-      {:appsignal_phoenix, "~> 2.2"},
       {:ex_cldr, "~> 2.34"},
-      {:ex_cldr_numbers, "~> 2.28"}
+      {:ex_cldr_numbers, "~> 2.28"},
+      {:quantum, "~> 3.5"},
+      {:timex, "~>  3.7"},
+      {:mock, "~> 0.3.0", only: :test}
     ]
   end
 
@@ -69,11 +70,17 @@ defmodule PriceRegister.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup"],
+      setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.deploy": ["esbuild default --minify", "phx.digest"]
+      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.build": ["tailwind ppr_api", "esbuild ppr_api"],
+      "assets.deploy": [
+        "tailwind ppr_api --minify",
+        "esbuild ppr_api --minify",
+        "phx.digest"
+      ]
     ]
   end
 end

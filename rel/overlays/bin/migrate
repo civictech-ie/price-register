@@ -1,3 +1,0 @@
-#!/bin/sh
-cd -P -- "$(dirname -- "$0")"
-exec ./price_register eval PriceRegister.Release.migrate

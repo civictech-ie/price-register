@@ -1,0 +1,6 @@
+<.table id="fetches" rows={@fetches}>
+  <:col :let={fetch} label="Status">{fetch.status}</:col>
+  <:col :let={fetch} label="Total rows">{fetch.total_rows}</:col>
+  <:col :let={fetch} label="Started at">{fetch.started_at}</:col>
+  <:col :let={fetch} label="Finished at">{fetch.finished_at}</:col>
+</.table>

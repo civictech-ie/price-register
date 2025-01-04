@@ -1,9 +1,9 @@
 import Config
 
 # Configure your database
-config :price_register, PriceRegister.Repo,
+config :ppr_api, PprApi.Repo,
   hostname: "localhost",
-  database: "price_register_dev",
+  database: "ppr_api_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
@@ -12,18 +12,19 @@ config :price_register, PriceRegister.Repo,
 # debugging and code reloading.
 #
 # The watchers configuration can be used to run external
-# watchers to your application. For example, we use it
-# with esbuild to bundle .js and .css sources.
-config :price_register, PriceRegisterWeb.Endpoint,
+# watchers to your application. For example, we can use it
+# to bundle .js and .css sources.
+config :ppr_api, PprApiWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   http: [ip: {127, 0, 0, 1}, port: 4000],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "FcNR51iuQRCZ5zxUv+Qx6FPivmyScHfPsAeHIbZxhuUt7xzJTj1T/mwZ1T7xn4Mt",
+  secret_key_base: "UGJHgDI/2B71vShPnjLoIK46cfdczq8urfE23WW2H96G96ixMxpkOr5U2d6MdIr7",
   watchers: [
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
+    esbuild: {Esbuild, :install_and_run, [:ppr_api, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:ppr_api, ~w(--watch)]}
   ]
 
 # ## SSL Support
@@ -50,18 +51,17 @@ config :price_register, PriceRegisterWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :price_register, PriceRegisterWeb.Endpoint,
+config :ppr_api, PprApiWeb.Endpoint,
   live_reload: [
     patterns: [
-      ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
+      ~r"priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/price_register_web/(live|views)/.*(ex)$",
-      ~r"lib/price_register_web/templates/.*(eex)$"
+      ~r"lib/ppr_api_web/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
 
 # Enable dev routes for dashboard and mailbox
-config :price_register, dev_routes: true
+config :ppr_api, dev_routes: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
@@ -73,7 +73,11 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
+config :phoenix_live_view,
+  # Include HEEx debug annotations as HTML comments in rendered markup
+  debug_heex_annotations: true,
+  # Enable helpful, but potentially expensive runtime checks
+  enable_expensive_runtime_checks: true
+
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
-
-config :appsignal, :config, active: true
