@@ -12,12 +12,35 @@
 }
 
 html {
-  font-size: 16px;
-  line-height: 1.3;
+  font-size: 15px;
   text-transform: uppercase;
 }
 
+body {
+  font-size: 1rem;
+  line-height: 1.3;
+  padding: 1rem;
+  background: white;
+}
+
+.api-bar {
+  width: 100%;
+  font-family: monospace;
+  box-shadow: 0 0 0 1px black;
+  border-radius: 2px;
+  padding: 0.25rem;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  outline: 0;
+  border: 0;
+}
+
 .table__header {
+  background: white;
+  border-bottom: 1px solid black;
+  position: sticky;
+  top: 0;
+  padding: 0.5rem 0;
 }
 
 .table__rows {
@@ -31,5 +54,29 @@ html {
 }
 
 .table__cell {
-  padding: 0.5rem;
+  display: none;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.125rem 0;
+
+  &.--two {
+    flex: 2;
+  }
+
+  &.--three {
+    flex: 3;
+  }
+
+  &.--important {
+    display: flex;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Adjust this value based on your design needs */
+  .table__cell {
+    display: flex; /* Show all cells on larger screens */
+  }
 }

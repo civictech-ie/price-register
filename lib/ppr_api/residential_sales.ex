@@ -4,14 +4,19 @@ defmodule PprApi.ResidentialSales do
   alias PprApi.ResidentialSales.ResidentialSale
   alias PprApi.FingerprintHelper
   alias PprApi.Pagination
+  alias PprApi.Pagination.Cursor
 
-  @doc """
-  Returns the list of residential_sales ordered by date of sale.
-  """
   def list_residential_sales(opts \\ []) do
-    ResidentialSale
-    |> order_by([rs], desc: rs.date_of_sale, desc: rs.inserted_at, desc: rs.id)
-    |> Pagination.paginate(Repo, opts)
+    entries =
+      ResidentialSale
+      |> apply_cursor(opts)
+      |> apply_limit(opts["limit"])
+      |> Repo.all()
+
+    %{
+      entries: entries,
+      metadata: generate_metadata(entries, opts)
+    }
   end
 
   @doc """
@@ -24,8 +29,17 @@ defmodule PprApi.ResidentialSales do
   end
 
   @doc """
-  Gets a single residential_sale.
+  Returns the current count of residential sales.
+  """
+  def total_residential_sales do
+    case Fetches.get_latest_successful_fetch() do
+      {:ok, fetch} -> fetch.total_rows
+      {:error, _reason} -> 0
+    end
+  end
 
+  @doc """
+  Gets a single residential_sale.
   Raises `Ecto.NoResultsError` if the Residential sale does not exist.
   """
   def get_residential_sale!(id), do: Repo.get!(ResidentialSale, id)
@@ -33,19 +47,13 @@ defmodule PprApi.ResidentialSales do
   @doc """
   Inserts residential sales in batches of 1000.
   """
-
   def upsert_rows(rows) do
-    # Define the batch size
     batch_size = 1000
 
-    # Split rows into chunks of batch_size
     rows
     |> Enum.chunk_every(batch_size)
     |> Enum.reduce(0, fn chunk, acc ->
-      # Process each chunk and get the count of inserted rows
       inserted = upsert_batch(chunk)
-
-      # Add to the total count
       acc + inserted
     end)
   end
@@ -53,7 +61,6 @@ defmodule PprApi.ResidentialSales do
   defp upsert_batch(rows) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-    # Add fingerprints and timestamps
     rows_with_fingerprints =
       Enum.map(rows, fn row ->
         row
@@ -84,5 +91,121 @@ defmodule PprApi.ResidentialSales do
       Map.put_new(acc, row.fingerprint, row)
     end)
     |> Map.values()
+  end
+
+  defp apply_cursor(query, opts) do
+    case {opts["before"], opts["after"]} do
+      {nil, nil} ->
+        query
+
+      {before_cursor, nil} ->
+        apply_cursor(query, parse_sort_param(opts["sort"]), {:before, before_cursor})
+
+      {nil, after_cursor} ->
+        apply_cursor(query, parse_sort_param(opts["sort"]), {:after, after_cursor})
+    end
+  end
+
+  def apply_cursor(query, {sort_field, sort_direction}, {cursor_direction, cursor}) do
+    {:ok, {sort_value, sort_id}} = Cursor.decode_cursor(cursor, sort_field)
+    operator = determine_operator(sort_direction, cursor_direction)
+
+    case sort_field do
+      :date_of_sale ->
+        query |> where(^build_date_of_sale_condition(sort_value, sort_id, operator))
+
+      :price_in_euros ->
+        query |> where(^build_price_in_euros_condition(sort_value, sort_id, operator))
+
+      _ ->
+        query
+    end
+  end
+
+  defp build_date_of_sale_condition(sort_value, sort_id, :gt) do
+    dynamic(
+      [m],
+      m.date_of_sale > ^sort_value or
+        (m.date_of_sale == ^sort_value and m.id > ^sort_id)
+    )
+  end
+
+  defp build_date_of_sale_condition(sort_value, sort_id, :lt) do
+    dynamic(
+      [m],
+      m.date_of_sale < ^sort_value or
+        (m.date_of_sale == ^sort_value and m.id < ^sort_id)
+    )
+  end
+
+  defp build_price_in_euros_condition(sort_value, sort_id, :gt) do
+    dynamic(
+      [m],
+      m.price_in_euros > ^sort_value or
+        (m.price_in_euros == ^sort_value and m.id > ^sort_id)
+    )
+  end
+
+  defp build_price_in_euros_condition(sort_value, sort_id, :lt) do
+    dynamic(
+      [m],
+      m.price_in_euros < ^sort_value or
+        (m.price_in_euros == ^sort_value and m.id < ^sort_id)
+    )
+  end
+
+  defp determine_operator("asc", :after), do: :gt
+  defp determine_operator("asc", :before), do: :lt
+  defp determine_operator("desc", :after), do: :lt
+  defp determine_operator("desc", :before), do: :gt
+
+  defp apply_sorting(query, "price", "asc"),
+    do: order_by(query, [rs], asc: rs.price_in_euros, asc: rs.id)
+
+  defp apply_sorting(query, "price", "desc"),
+    do: order_by(query, [rs], desc: rs.price_in_euros, desc: rs.id)
+
+  defp apply_sorting(query, "date", "asc"),
+    do: order_by(query, [rs], asc: rs.date_of_sale, asc: rs.id)
+
+  defp apply_sorting(query, "date", "desc"),
+    do: order_by(query, [rs], desc: rs.date_of_sale, desc: rs.id)
+
+  defp apply_cursor(query, _), do: query
+
+  defp apply_limit(query, limit \\ 250)
+
+  defp apply_limit(query, limit) when is_integer(limit) do
+    effective_limit = Enum.min([limit, Pagination.max_limit()])
+    limit(query, ^effective_limit)
+  end
+
+  defp apply_limit(query, limit) when is_binary(limit) do
+    apply_limit(query, String.to_integer(limit))
+  end
+
+  defp parse_sort_param(sort_param) do
+    case String.split(sort_param, "-") do
+      [field, direction] -> {field, direction}
+      [field] -> {field, "desc"}
+    end
+  end
+
+  # Generate either an 'after' or 'before' cursor based on the position of the entry
+  defp generate_cursor(nil, _), do: nil
+
+  defp generate_cursor(entry, sort_field) do
+    Cursor.encode_cursor(entry, sort_field)
+  end
+
+  defp generate_metadata(entries, opts) do
+    {sort_field, _direction} = parse_sort_param(opts["sort"])
+    after_cursor = generate_cursor(List.last(entries), sort_field)
+    before_cursor = generate_cursor(List.first(entries), sort_field)
+
+    %{
+      after: after_cursor,
+      before: before_cursor
+    }
   end
 end

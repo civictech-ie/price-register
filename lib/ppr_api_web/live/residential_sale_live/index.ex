@@ -3,8 +3,10 @@ defmodule PprApiWeb.ResidentialSaleLive.Index do
   alias PprApi.ResidentialSales
   alias PprApi.Pagination
 
-  def mount(_params, _session, socket) do
-    opts = [page: 1, per_page: 250]
+  def mount(params, _session, socket) do
+    opts =
+      params
+      |> parse_params()
 
     %{entries: residential_sales, metadata: metadata} =
       ResidentialSales.list_residential_sales(opts)
@@ -19,7 +21,9 @@ defmodule PprApiWeb.ResidentialSaleLive.Index do
   end
 
   def handle_params(params, _url, socket) do
-    opts = Pagination.parse_pagination_params(params)
+    opts =
+      params
+      |> parse_params()
 
     %{entries: residential_sales, metadata: metadata} =
       ResidentialSales.list_residential_sales(opts)
@@ -28,21 +32,42 @@ defmodule PprApiWeb.ResidentialSaleLive.Index do
       socket
       |> assign(:residential_sales, residential_sales)
       |> assign(:metadata, metadata)
-      |> assign(:api_path, generate_api_path(params))
+      |> assign(:api_path, generate_api_path(opts))
+
+    {:ok, socket}
 
     {:noreply, socket}
   end
 
-  def handle_event("nav", %{"page" => page}, socket) do
+  def handle_event("navigate", %{"direction" => direction, "cursor" => cursor}, socket) do
     params = %{
-      "page" => page,
-      "per_page" => socket.assigns.metadata.per_page
+      direction => cursor
     }
 
     {:noreply, push_patch(socket, to: ~p"/residential/sales?#{params}")}
   end
 
-  defp generate_api_path(params) do
-    ~p"/api/v1/residential/sales?#{params}"
+  defp generate_api_path(opts) do
+    ~p"/api/v1/residential/sales?#{opts}"
+  end
+
+  # takes params and returns a map of only keys in the defaults,
+  # and uses the default values if they are not present
+  defp parse_params(params) do
+    defaults = %{
+      "sort" => "date-desc",
+      "before" => nil,
+      "after" => nil,
+      "limit" => Pagination.default_limit()
+    }
+
+    defaults
+    |> Map.merge(Map.take(params, Map.keys(defaults)))
+    |> Enum.reject(fn
+      {_key, nil} -> true
+      {_key, value} when is_binary(value) -> String.trim(value) == ""
+      {_key, _value} -> false
+    end)
+    |> Enum.into(%{})
   end
 end

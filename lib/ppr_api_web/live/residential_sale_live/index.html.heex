@@ -1,46 +1,47 @@
 <div id="residential_sales" class="table">
-  <input value={@api_path} />
-
   <nav class="pagination">
-    <button phx-click="nav" phx-value-page={@metadata.page - 1} disabled={@metadata.page == 1}>
+    <button
+      phx-click="navigate"
+      phx-value-direction="before"
+      phx-value-cursor={@metadata.before}
+      disabled={@metadata.before == nil}
+    >
       Previous
     </button>
-    <span>Page {@metadata.page} of {@metadata.total_pages}</span>
     <button
-      phx-click="nav"
-      phx-value-page={@metadata.page + 1}
-      disabled={@metadata.page == @metadata.total_pages}
+      phx-click="navigate"
+      phx-value-direction="after"
+      phx-value-cursor={@metadata.after}
+      disabled={@metadata.after == nil}
     >
       Next
     </button>
   </nav>
 
   <div class="table__header">
+    <div class="table__filters">
+      <input value={@api_path} class="api-bar" />
+    </div>
     <div class="table__row">
-      <div class="table__cell">Date of Sale</div>
-      <div class="table__cell">Address</div>
+      <div class="table__cell --important">Date</div>
+      <div class="table__cell --three --important">Address</div>
       <div class="table__cell">County</div>
       <div class="table__cell">Eircode</div>
-      <div class="table__cell">Price</div>
+      <div class="table__cell --important">Price</div>
     </div>
   </div>
 
   <div class="table__rows">
     <%= for residential_sale <- @residential_sales do %>
       <div class="table__row">
-        <div class="table__cell">{residential_sale.date_of_sale}</div>
-        <div class="table__cell">{residential_sale.address}</div>
+        <div class="table__cell --important">{residential_sale.date_of_sale}</div>
+        <div class="table__cell --three --important">{residential_sale.address}</div>
         <div class="table__cell">{residential_sale.county}</div>
         <div class="table__cell">{residential_sale.eircode}</div>
-        <div class="table__cell">€{residential_sale.price_in_euros}</div>
+        <div class="table__cell --important">
+          {PprApi.Cldr.Number.to_string!(residential_sale.price_in_euros, currency: "EUR")}
+        </div>
       </div>
     <% end %>
-  </div>
-
-  <div class="pagination-info">
-    Showing {(@metadata.page - 1) * @metadata.per_page + 1} to {min(
-      @metadata.page * @metadata.per_page,
-      @metadata.total_count
-    )} of {@metadata.total_count} entries
   </div>
 </div>

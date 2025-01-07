@@ -17,6 +17,15 @@ defmodule PprApi.Fetches do
     Repo.all(from f in Fetch, order_by: [desc: f.inserted_at])
   end
 
+  def get_latest_successful_fetch do
+    from(f in Fetch,
+      where: f.status == "success",
+      order_by: [desc: f.finished_at],
+      limit: 1
+    )
+    |> Repo.one()
+  end
+
   @doc """
   Fetch the latest updates from the Property Register.
   Starts syncing from the month of the latest sale in the db.
