@@ -9,7 +9,14 @@ defmodule PprApi.ResidentialSalesTest do
       sale1 = residential_sale_fixture(%{date_of_sale: ~D[2023-01-01]})
       sale2 = residential_sale_fixture(%{date_of_sale: ~D[2023-01-02]})
 
-      %{entries: sales, metadata: _metadata} = ResidentialSales.list_residential_sales()
+      %{entries: sales, metadata: _metadata} =
+        ResidentialSales.list_residential_sales(%{
+          "sort" => "date-desc",
+          "before" => nil,
+          "after" => nil,
+          "limit" => 2
+        })
+
       assert [sale2.id, sale1.id] == Enum.map(sales, & &1.id)
     end
   end

@@ -1,7 +1,6 @@
 defmodule PprApiWeb.ResidentialSaleLive.Index do
   use PprApiWeb, :live_view
   alias PprApi.ResidentialSales
-  alias PprApi.Pagination
 
   def mount(params, _session, socket) do
     opts =

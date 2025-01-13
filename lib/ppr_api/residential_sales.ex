@@ -5,53 +5,27 @@ defmodule PprApi.ResidentialSales do
   alias PprApi.Fetches.Fetch
   alias PprApi.ResidentialSales.ResidentialSale
   alias PprApi.FingerprintHelper
+  alias PprApi.Pagination.Cursor
 
   @doc """
   Lists residential sales with keyset pagination.
-  Accepts options like:
+  Options:
     %{
       "sort" => "date-desc" | "date-asc" | "price-desc" | "price-asc",
       "after" => <base64 cursor> | "before" => <base64 cursor>,
       "limit" => "10" | "1000"
     }
-
-  The keyset cursor is a Base64:
-  - For a date sort, `sort_value` is the "YYYY-MM-DD" string.
-  - For a price sort, `sort_value` is the stringified price in euros.
   """
   def list_residential_sales(opts \\ []) do
     opts = parse_opts(opts)
 
-    entries =
-      ResidentialSale
-      |> apply_cursor(opts)
-      |> apply_order(opts)
-      |> apply_limit(opts)
-      |> Repo.all()
-      |> apply_corrective_flip(opts)
-
-    has_next_page? = check_if_next_page?(entries, opts)
-    has_prev_page? = check_if_prev_page?(entries, opts)
-
-    after_entry =
-      if has_next_page? do
-        List.last(entries)
-      else
-        nil
-      end
-
-    before_entry =
-      if has_prev_page? do
-        List.first(entries)
-      else
-        nil
-      end
+    {before_entry, entries, after_entry} = get_sales_and_peek(opts)
 
     %{
       entries: entries,
       metadata: %{
-        after_cursor: encode_cursor(after_entry, opts),
-        before_cursor: encode_cursor(before_entry, opts),
+        after_cursor: Cursor.encode_cursor(after_entry, opts),
+        before_cursor: Cursor.encode_cursor(before_entry, opts),
         limit: opts["limit"],
         sort:
           opts["sort"]
@@ -63,7 +37,7 @@ defmodule PprApi.ResidentialSales do
   end
 
   @doc """
-  Returns the date of the most recent residential sale.
+  Returns the date of the most recent sale.
   """
   def latest_sale_date do
     ResidentialSale
@@ -72,7 +46,7 @@ defmodule PprApi.ResidentialSales do
   end
 
   @doc """
-  Returns the current count of residential sales.
+  Current count of residential sales.
   """
   def total_residential_sales do
     case Fetches.get_latest_successful_fetch() do
@@ -82,13 +56,13 @@ defmodule PprApi.ResidentialSales do
   end
 
   @doc """
-  Gets a single residential_sale.
-  Raises `Ecto.NoResultsError` if the Residential sale does not exist.
+  Gets a single residential sale by ID.
+  Raises if it doesn’t exist.
   """
   def get_residential_sale!(id), do: Repo.get!(ResidentialSale, id)
 
   @doc """
-  Inserts residential sales in batches of 1000.
+  Inserts sales in batches of 1000. Skips duplicates.
   """
   def upsert_rows(rows) do
     batch_size = 1000
@@ -112,10 +86,10 @@ defmodule PprApi.ResidentialSales do
         |> Map.put(:updated_at, now)
       end)
 
-    # Remove duplicate fingerprints within the batch
+    # remove duplicate fingerprints within the batch
     unique_rows = remove_duplicate_fingerprints(rows_with_fingerprints)
 
-    # Perform the bulk upsert, counting only inserted rows
+    # perform the bulk upsert
     {rows_inserted, _} =
       Repo.insert_all(
         ResidentialSale,
@@ -127,7 +101,6 @@ defmodule PprApi.ResidentialSales do
     rows_inserted
   end
 
-  # Helper to remove duplicate fingerprints, keeping the first occurrence
   defp remove_duplicate_fingerprints(rows_with_fingerprints) do
     rows_with_fingerprints
     |> Enum.reduce(%{}, fn row, acc ->
@@ -164,13 +137,13 @@ defmodule PprApi.ResidentialSales do
   defp parse_cursor(%{"after" => value, "sort" => {sort_field, _sort_direction}} = opts) do
     opts
     |> Map.delete("after")
-    |> Map.put("cursor", {decode_cursor(value, sort_field), "after"})
+    |> Map.put("cursor", {Cursor.decode_cursor(value, sort_field), "after"})
   end
 
   defp parse_cursor(%{"before" => value, "sort" => {sort_field, _sort_direction}} = opts) do
     opts
     |> Map.delete("before")
-    |> Map.put("cursor", {decode_cursor(value, sort_field), "before"})
+    |> Map.put("cursor", {Cursor.decode_cursor(value, sort_field), "before"})
   end
 
   defp parse_cursor(opts), do: opts
@@ -188,6 +161,39 @@ defmodule PprApi.ResidentialSales do
     case Integer.parse(limit) do
       {num, _} -> num
     end
+  end
+
+  # The Actual Query
+
+  # if i'm ascending and paginating forwards (after), i want to get the entries
+  # that are greater than the cursor value.
+  #
+  # if i'm ascending and paginating backwards (before), i want to get the entries
+  # that are less than (but closest to) the cursor value.
+  #
+  # if i'm descending and paginating forwards (after), i want to get the entries
+  # that are less than the cursor value
+  #
+  # if i'm descending and paginating backwards (before), i want to get the entries
+  # that are greater than (but closest to) the cursor value
+  #
+  # before and after should follow the sort order, so should be independent of the
+  # cursor direction. (i.e. if i've pressed previous, then the previous button should
+  # still show me further in the previous direction.)
+
+  defp get_sales_and_peek(opts) do
+    entries =
+      ResidentialSale
+      |> apply_cursor(opts)
+      |> apply_order(opts)
+      |> apply_limit(opts)
+      |> Repo.all()
+      |> apply_corrective_flip(opts)
+
+    before_entry = set_peek_entry(:before, entries, opts)
+    after_entry = set_peek_entry(:after, entries, opts)
+
+    {before_entry, entries, after_entry}
   end
 
   defp apply_cursor(query, %{
@@ -277,7 +283,6 @@ defmodule PprApi.ResidentialSales do
     query |> limit(^opts["limit"])
   end
 
-  # APPLY CORRECTIVE FLIP
   # if we're paginating backwards, we need to flip the order of the results
   defp apply_corrective_flip(entries, %{"cursor" => {_cursor, "before"}}) do
     Enum.reverse(entries)
@@ -285,99 +290,67 @@ defmodule PprApi.ResidentialSales do
 
   defp apply_corrective_flip(entries, _opts), do: entries
 
-  # ENCODE & DECODE
+  # PEEK QUERIES
 
-  defp encode_cursor(nil, _opts), do: nil
+  defp set_peek_entry(_dir, [], _opts), do: nil
 
-  # "date" sort => "YYYY-MM-DD-<id>"
-  defp encode_cursor(%ResidentialSale{id: id, date_of_sale: date}, %{"sort" => {"date", _dir}}) do
-    # Convert date to ISO8601, then combine with ID
-    value_str = Date.to_iso8601(date)
-    combined = "#{value_str}|#{id}"
-    Base.url_encode64(combined, padding: false)
+  defp set_peek_entry(:before, [first_entry | _], %{"sort" => {field, order}}) do
+    if has_entry_in_direction?(field, order, first_entry, :before),
+      do: first_entry,
+      else: nil
   end
 
-  # "price" sort => "<price_in_euros>-<id>"
-  defp encode_cursor(%ResidentialSale{id: id, price_in_euros: price}, %{"sort" => {"price", _dir}}) do
-    value_str = to_string(price)
-    combined = "#{value_str}|#{id}"
-    Base.url_encode64(combined, padding: false)
-  end
-
-  # peek functions
-
-  defp check_if_next_page?([], _opts), do: false
-
-  defp check_if_next_page?(entries, opts) do
-    # 1) Get the last entry in the current page
+  defp set_peek_entry(:after, entries, %{"sort" => {field, order}}) do
     last_entry = List.last(entries)
-    encoded_cursor = encode_cursor(last_entry, opts)
 
-    # 2) Build new opts with "after" that last entry
-    new_opts =
-      opts
-      |> Map.delete("cursor")
-      # just to be safe
-      |> Map.delete("before")
-      |> Map.put("after", encoded_cursor)
-
-    # 3) Run the same pipeline with limit(1)
-    ResidentialSale
-    |> apply_cursor(new_opts)
-    |> apply_order(new_opts)
-    |> limit(1)
-    |> Repo.exists?()
+    if has_entry_in_direction?(field, order, last_entry, :after),
+      do: last_entry,
+      else: nil
   end
 
-  defp check_if_prev_page?([], _opts), do: false
+  defp has_entry_in_direction?(
+         "date",
+         order,
+         %ResidentialSale{id: id, date_of_sale: date},
+         direction
+       ),
+       do:
+         has_entry_in_direction_date(ResidentialSale, order, date, id, direction)
+         |> Repo.exists?()
 
-  defp check_if_prev_page?(entries, opts) do
-    # 1) Get the first entry in the current page
-    first_entry = List.first(entries)
-    encoded_cursor = encode_cursor(first_entry, opts)
+  defp has_entry_in_direction?(
+         "price",
+         order,
+         %ResidentialSale{id: id, price_in_euros: price},
+         direction
+       ),
+       do:
+         has_entry_in_direction_price(ResidentialSale, order, price, id, direction)
+         |> Repo.exists?()
 
-    # 2) Build new opts with "before" that first entry
-    new_opts =
-      opts
-      |> Map.delete("cursor")
-      # just to be safe
-      |> Map.delete("after")
-      |> Map.put("before", encoded_cursor)
+  # date
+  defp has_entry_in_direction_date(queryable, "asc", date, id, :before),
+    do: less_than_date(queryable, date, id)
 
-    # 3) Run the same pipeline with limit(1)
-    ResidentialSale
-    |> apply_cursor(new_opts)
-    |> apply_order(new_opts)
-    |> limit(1)
-    |> Repo.exists?()
-  end
+  defp has_entry_in_direction_date(queryable, "asc", date, id, :after),
+    do: greater_than_date(queryable, date, id)
 
-  # fallback if sort or fields are unexpected
-  defp encode_cursor(_entry, _opts), do: nil
+  defp has_entry_in_direction_date(queryable, "desc", date, id, :before),
+    do: greater_than_date(queryable, date, id)
 
-  defp decode_cursor(nil, _field), do: nil
+  defp has_entry_in_direction_date(queryable, "desc", date, id, :after),
+    do: less_than_date(queryable, date, id)
 
-  defp decode_cursor(encoded, "date") do
-    with {:ok, decoded} <- Base.url_decode64(encoded, padding: false),
-         [val_str, raw_id] <- String.split(decoded, "|", parts: 2),
-         {:ok, date} <- Date.from_iso8601(val_str),
-         {id, ""} <- Integer.parse(raw_id) do
-      {date, id}
-    else
-      _ -> nil
-    end
-  end
+  # price
+  defp has_entry_in_direction_price(queryable, "asc", price, id, :before),
+    do: less_than_price(queryable, price, id)
 
-  defp decode_cursor(encoded, "price") do
-    with {:ok, decoded} <- Base.url_decode64(encoded, padding: false),
-         [val_str, raw_id] <- String.split(decoded, "|", parts: 2),
-         {price, ""} <- Integer.parse(val_str),
-         {id, ""} <- Integer.parse(raw_id) do
-      {price, id}
-    else
-      _ -> nil
-    end
-  end
+  defp has_entry_in_direction_price(queryable, "asc", price, id, :after),
+    do: greater_than_price(queryable, price, id)
 
-  defp decode_cursor(_encoded, _field), do: nil
+  defp has_entry_in_direction_price(queryable, "desc", price, id, :before),
+    do: greater_than_price(queryable, price, id)
+
+  defp has_entry_in_direction_price(queryable, "desc", price, id, :after),
+    do: less_than_price(queryable, price, id)
 end
