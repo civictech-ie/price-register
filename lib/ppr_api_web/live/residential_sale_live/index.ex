@@ -34,15 +34,25 @@ defmodule PprApiWeb.ResidentialSaleLive.Index do
       |> assign(:metadata, metadata)
       |> assign(:api_path, generate_api_path(opts))
 
-    {:ok, socket}
-
     {:noreply, socket}
   end
 
-  def handle_event("navigate", %{"direction" => direction, "cursor" => cursor}, socket) do
-    params = %{
-      direction => cursor
-    }
+  def handle_event("previous", _params, socket) do
+    params =
+      socket.assigns.metadata
+      |> Map.delete(:after_cursor)
+      |> Map.delete(:total_rows)
+      |> rename_key(:before_cursor, :before)
+
+    {:noreply, push_patch(socket, to: ~p"/residential/sales?#{params}")}
+  end
+
+  def handle_event("next", _params, socket) do
+    params =
+      socket.assigns.metadata
+      |> Map.delete(:before_cursor)
+      |> Map.delete(:total_rows)
+      |> rename_key(:after_cursor, :after)
 
     {:noreply, push_patch(socket, to: ~p"/residential/sales?#{params}")}
   end
@@ -58,7 +68,7 @@ defmodule PprApiWeb.ResidentialSaleLive.Index do
       "sort" => "date-desc",
       "before" => nil,
       "after" => nil,
-      "limit" => Pagination.default_limit()
+      "limit" => 250
     }
 
     defaults
@@ -69,5 +79,18 @@ defmodule PprApiWeb.ResidentialSaleLive.Index do
       {_key, _value} -> false
     end)
     |> Enum.into(%{})
+  end
+
+  # Helper function to rename a key in a map
+  defp rename_key(map, old_key, new_key) do
+    if Map.has_key?(map, old_key) do
+      value = Map.get(map, old_key)
+
+      map
+      |> Map.delete(old_key)
+      |> Map.put(new_key, value)
+    else
+      map
+    end
   end
 end
