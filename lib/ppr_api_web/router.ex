@@ -16,7 +16,6 @@ defmodule PprApiWeb.Router do
 
   scope "/api/v1", PprApiWeb do
     pipe_through :api
-
     resources "/residential/sales", API.ResidentialSaleController
   end
 
