@@ -46,11 +46,11 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-# config :ppr_api, PprApi.Scheduler,
-#   jobs: [
-#     {"* * * * *", {PprApi.Fetches, :fetch_latest_sales, []}},
-#     {"0 1 * * 6", {PprApi.Fetches, :fetch_all_sales, [true]}}
-#   ]
+config :ppr_api, PprApi.Scheduler,
+  jobs: [
+    {"* * * * *", {PprApi.Fetches, :fetch_latest_sales, []}},
+    {"0 1 * * 6", {PprApi.Fetches, :fetch_all_sales, [true]}}
+  ]
 
 config :ex_cldr, PprApi.Cldr,
   default_locale: "en",
