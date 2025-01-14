@@ -15,8 +15,8 @@ defmodule PprApi.Application do
     ]
 
     children =
-      if Mix.env() != :test do
-        children ++ [PprApi.Scheduler]
+      if Application.get_env(:ppr_api, :scheduler_enabled) do
+        Enum.concat(children, [PprApi.Scheduler])
       else
         children
       end

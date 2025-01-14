@@ -9,7 +9,8 @@ import Config
 
 config :ppr_api,
   ecto_repos: [PprApi.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  scheduler_enabled: true
 
 # Configures the endpoint
 config :ppr_api, PprApiWeb.Endpoint,
