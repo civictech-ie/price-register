@@ -31,9 +31,7 @@ defmodule PprApi.Fetcher do
 
   # We recursively fetch from `current_date` until we reach today's month
   defp fetch_months_recursively(%Fetch{} = fetch, %Date{} = current_date) do
-    if Mix.env() != :test do
-      Process.sleep(@wait_time)
-    end
+    Process.sleep(@wait_time)
 
     current_date
     |> fetch_data_for_month()
