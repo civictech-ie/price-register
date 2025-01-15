@@ -12,7 +12,6 @@
       <input value={@api_path} class="api-bar" />
     </div>
     <div class="table__row">
-      <div class="table__cell --important">ID</div>
       <div class="table__cell --important">Date</div>
       <div class="table__cell --three --important">Address</div>
       <div class="table__cell">County</div>
@@ -24,7 +23,6 @@
   <div class="table__rows">
     <%= for residential_sale <- @residential_sales do %>
       <div class="table__row">
-        <div class="table__cell --important">{residential_sale.id}</div>
         <div class="table__cell --important">{residential_sale.date_of_sale}</div>
         <div class="table__cell --three --important">{residential_sale.address}</div>
         <div class="table__cell">{residential_sale.county}</div>
