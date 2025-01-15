@@ -4,7 +4,7 @@ defmodule PprApi.Fetcher do
   alias NimbleCSV.RFC4180, as: CSV
 
   @base_url "https://propertypriceregister.ie/website/npsra/ppr/npsra-ppr.nsf/Downloads/"
-  @wait_time 2_000
+  @wait_time 5_000
 
   @doc """
   Fetches from PPR, month by month, from fetch.starts_on up to the current month.
