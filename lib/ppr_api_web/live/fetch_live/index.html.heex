@@ -1,6 +1,21 @@
-<.table id="fetches" rows={@fetches}>
-  <:col :let={fetch} label="Status">{fetch.status}</:col>
-  <:col :let={fetch} label="Total rows">{fetch.total_rows}</:col>
-  <:col :let={fetch} label="Started at">{fetch.started_at}</:col>
-  <:col :let={fetch} label="Finished at">{fetch.finished_at}</:col>
-</.table>
+<div id="fetches" class="table">
+  <div class="table__header">
+    <div class="table__row">
+      <div class="table__cell --important">Status</div>
+      <div class="table__cell --important">Started at</div>
+      <div class="table__cell --important">Finished at</div>
+      <div class="table__cell --important">Total rows</div>
+    </div>
+  </div>
+
+  <div class="table__rows">
+    <%= for fetch <- @fetches do %>
+      <div class="table__row">
+        <div class="table__cell --important">{fetch.status}</div>
+        <div class="table__cell --important">{fetch.started_at}</div>
+        <div class="table__cell --important">{fetch.finished_at}</div>
+        <div class="table__cell --important">{fetch.total_rows}</div>
+      </div>
+    <% end %>
+  </div>
+</div>
