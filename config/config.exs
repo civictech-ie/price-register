@@ -49,7 +49,9 @@ config :logger, :console,
 
 config :ppr_api, PprApi.Scheduler,
   jobs: [
+    # every minute
     {"* * * * *", {PprApi.Fetches, :fetch_latest_sales, []}},
+    # every Saturday at 1am
     {"0 1 * * 6", {PprApi.Fetches, :fetch_all_sales, [true]}}
   ]
 

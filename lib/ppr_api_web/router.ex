@@ -22,8 +22,9 @@ defmodule PprApiWeb.Router do
   scope "/", PprApiWeb do
     pipe_through :browser
 
-    live "/fetches", FetchLive.Index, :index
+    get "/fonts/:font_name", FontController, :get_font
 
+    live "/fetches", FetchLive.Index, :index
     live "/residential/sales", ResidentialSaleLive.Index, :index
     live "/", ResidentialSaleLive.Index, :index
   end

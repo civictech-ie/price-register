@@ -1,8 +1,15 @@
+<article>
+  <p>
+    This service automatically checks the <a href="https://www.psr.ie">PRSA</a>
+    website every minute for updates, and runs a weekly full sync just for kicks.
+  </p>
+</article>
+
 <div id="fetches" class="table">
   <div class="table__header">
     <div class="table__row">
       <div class="table__cell --important">Status</div>
-      <div class="table__cell --important">Started at</div>
+      <div class="table__cell">Started at</div>
       <div class="table__cell --important">Finished at</div>
       <div class="table__cell --important">Total rows</div>
     </div>
@@ -12,7 +19,7 @@
     <%= for fetch <- @fetches do %>
       <div class="table__row">
         <div class="table__cell --important">{fetch.status}</div>
-        <div class="table__cell --important">{fetch.started_at}</div>
+        <div class="table__cell">{fetch.started_at}</div>
         <div class="table__cell --important">{fetch.finished_at}</div>
         <div class="table__cell --important">{fetch.total_rows}</div>
       </div>
