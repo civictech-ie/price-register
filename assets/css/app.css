@@ -58,6 +58,9 @@ a:hover {
 article {
   max-width: 36rem;
   margin-bottom: 2rem;
+  code {
+    background-color: #f4f4f4;
+  }
 }
 
 .table__header {

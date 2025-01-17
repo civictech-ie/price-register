@@ -1,0 +1,26 @@
+<article>
+  <p>
+    This is a thin API layer on top of the CSV data provided by the <a href="https://www.propertypriceregister.ie">Property Services Regulatory Authority</a>. The PSRA’s CSVs have some funny encoding (CP1252), a misconfigured SSL certificate, and are generally a bit annoying to query directly. This service queries the CSVs and provides them here with a more standard JSON API. It doesn’t do any normalising or cleaning of the data, so any errors present on the register itself will be present here.
+  </p>
+  <p>
+    There are a bunch of caveats about the data on the <a href="https://www.propertypriceregister.ie">PSRA’s price register site</a>, so look for answers there if you’re curious.
+  </p>
+  <p>
+    I’ve made this interface to illustrate how one might interact with this API. It’s generally what you'd expect, I hope.
+    <code>GET /api/v1/residential/sales</code>
+    returns a list of JSON objects and some metadata. Copy & paste the URL in the input back on the home page to make your first query.
+  </p>
+  <p>
+    You can adjust the limit (1-1000), sort order (<code>date-desc</code>, <code>date-asc</code>, <code>price-desc</code>, <code>price-asc</code>), and use those `before` or `after` cursors in the metadata to paginate.
+    It uses <a href="https://use-the-index-luke.com/no-offset">keyset pagination</a>, so those cursors are a function of the sort-order.
+  </p>
+  <p>This site itself isn’t intended to be a useful interface for humans. Sorry.</p>
+  <p>
+    You can make queries against this API directly, but send me an email if you're going to hammer it. Alternatively, you can deploy it yourself fairly easily and then go wild.
+  </p>
+  <p class="salutation">
+    enjoy, <br />
+    <a href="https://www.flngn.com/" title="brian flanagan, civic tech person">brian</a>
+    / <a href="https://www.civictech.ie" title="civic tech for ireland">civictech.ie</a>
+  </p>
+</article>
