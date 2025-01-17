@@ -46,7 +46,7 @@ defmodule PprApi.Fetcher do
       |> Date.beginning_of_month()
 
     # Keep going if we're still behind the current month
-    if Date.compare(next_month, Date.utc_today() |> Date.beginning_of_month()) == :lt do
+    if Date.compare(next_month, Date.utc_today() |> Date.beginning_of_month()) in [:lt, :eq] do
       fetch_months_recursively(fetch, next_month)
     end
 
