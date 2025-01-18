@@ -51,9 +51,6 @@ if config_env() == :prod do
   host = System.get_env("EXTERNAL_HOSTNAME") || "localhost"
   port = String.to_integer(System.get_env("PORT") || "4000")
 
-  # use host
-  plug Corsica, origins: "*"
-
   config :ppr_api, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :ppr_api, PprApiWeb.Endpoint,
