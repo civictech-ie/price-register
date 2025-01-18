@@ -57,7 +57,8 @@ defmodule PprApi.MixProject do
       {:ex_cldr_numbers, "~> 2.28"},
       {:quantum, "~> 3.5"},
       {:timex, "~>  3.7"},
-      {:mock, "~> 0.3.0", only: :test}
+      {:mock, "~> 0.3.0", only: :test},
+      {:corsica, "~> 1.1"}
     ]
   end
 
