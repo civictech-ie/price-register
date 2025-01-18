@@ -152,6 +152,7 @@ article {
   &:last-child {
     justify-content: flex-end;
     text-align: right;
+    min-width: 9rem;
   }
 }
 

@@ -19,7 +19,7 @@
     <%= for residential_sale <- @residential_sales do %>
       <div class="table__row">
         <div class="table__cell --important">
-          {Timex.format!(residential_sale.date_of_sale, "{0D}/{0M}/{YYYY}")}
+          {Timex.format!(residential_sale.date_of_sale, "{0D}/{0M}/{YY}")}
         </div>
         <div class="table__cell --three --important">{residential_sale.address}</div>
         <div class="table__cell">{residential_sale.county}</div>
