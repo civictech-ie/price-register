@@ -9,7 +9,7 @@
 
 html {
   font-family: "c-mono", serif;
-  font-size: 14px;
+  font-size: 11.5px;
   -webkit-backface-visibility: visible;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -125,7 +125,8 @@ article {
 .table__row {
   display: flex;
   flex-direction: row;
-  padding: 0.1rem 0;
+  padding: 0.2rem 0;
+  gap: 1rem;
 }
 
 .table__cell {
@@ -134,7 +135,6 @@ article {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 0.1rem 0;
   text-transform: uppercase;
 
   &.--two {
@@ -156,6 +156,10 @@ article {
 }
 
 @media (min-width: 1024px) {
+  html {
+    font-size: 14px;
+  }
+
   .table__cell {
     display: flex;
   }
