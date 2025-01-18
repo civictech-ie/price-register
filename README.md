@@ -12,7 +12,7 @@ I made a public site primarily to illustrate how one might interact with this AP
 
 It's pretty straightforward to run the app yourself. It's a typical [Elixir](https://elixir-lang.org)/[Phoenix](https://www.phoenixframework.org) app that fetches and consumes CSVs from the PSRA.
 
-You'll need Elixir, Erlang and PostgreSQL installed.
+You'll need Elixir, Erlang and PostgreSQL installed. Versions are in the `.tool-versions` file.
 
 ```
 git clone https://github.com/civictech-ie/price-register.git
@@ -28,4 +28,4 @@ Now you can visit [`localhost:4000`](http://localhost:4000) and it should be wor
 
 If you're interested in contributing, put a note [in the issues](https://github.com/civictech-ie/price-register/issues). And make sure the tests pass (`mix test`).
 
-In general, I'm thinking the scope is: let's make the API a bit better for querying and ordering results. But making the public site much better is out of scope – if you want to do that, just make your own service that consumes this API!
+In general, I'm thinking the scope is: let's make the API a bit better for querying and ordering results. But making the public site more useful for directly accessing the data is out of scope – if you want to do that, just make your own service that consumes this API!
