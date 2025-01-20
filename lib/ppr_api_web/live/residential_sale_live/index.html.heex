@@ -1,6 +1,6 @@
 <div id="residential_sales" class="table">
   <div class="table__header">
-    <div class="table__controls">
+    <div class="controls">
       <input value={@api_path} type="text" class="api-bar" disabled />
       <button phx-click="previous" disabled={!@metadata.before_cursor}>←</button>
       <button phx-click="next" disabled={!@metadata.after_cursor}>→</button>
@@ -11,23 +11,25 @@
       <div class="table__cell --three --important">Address</div>
       <div class="table__cell">County</div>
       <div class="table__cell">Eircode</div>
-      <div class="table__cell --important">Price</div>
+      <div class="table__cell">Price</div>
     </div>
   </div>
 
-  <div class="table__rows">
+  <ol class="table__rows">
     <%= for residential_sale <- @residential_sales do %>
-      <div class="table__row">
-        <div class="table__cell --important">
-          {Timex.format!(residential_sale.date_of_sale, "{0D}/{0M}/{YY}")}
+      <li>
+        <div class="table__row">
+          <div class="table__cell --important">
+            {Timex.format!(residential_sale.date_of_sale, "{0D}/{0M}/{YY}")}
+          </div>
+          <div class="table__cell --three --important">{residential_sale.address}</div>
+          <div class="table__cell">{residential_sale.county}</div>
+          <div class="table__cell">{residential_sale.eircode}</div>
+          <div class="table__cell">
+            {PprApi.Cldr.Number.to_string!(residential_sale.price_in_euros, currency: "EUR")}
+          </div>
         </div>
-        <div class="table__cell --three --important">{residential_sale.address}</div>
-        <div class="table__cell">{residential_sale.county}</div>
-        <div class="table__cell">{residential_sale.eircode}</div>
-        <div class="table__cell --important">
-          {PprApi.Cldr.Number.to_string!(residential_sale.price_in_euros, currency: "EUR")}
-        </div>
-      </div>
+      </li>
     <% end %>
-  </div>
+  </ol>
 </div>
