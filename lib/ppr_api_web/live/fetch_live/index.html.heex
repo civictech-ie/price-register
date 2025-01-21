@@ -9,8 +9,7 @@
   <div class="table__header">
     <div class="table__row">
       <div class="table__cell --important">Status</div>
-      <div class="table__cell">Started at</div>
-      <div class="table__cell --important">Finished at</div>
+      <div class="table__cell --important">Finished</div>
       <div class="table__cell --important">Total rows</div>
     </div>
   </div>
@@ -19,9 +18,12 @@
     <%= for fetch <- @fetches do %>
       <div class="table__row">
         <div class="table__cell --important">{fetch.status}</div>
-        <div class="table__cell">{fetch.started_at}</div>
-        <div class="table__cell --important">{fetch.finished_at}</div>
-        <div class="table__cell --important">{fetch.total_rows}</div>
+        <div class="table__cell --important" title={fetch.finished_at}>
+          {Timex.format!(fetch.finished_at, "{0D}/{0M}/{YY}")}
+        </div>
+        <div class="table__cell --important">
+          {PprApi.Cldr.Number.to_string!(fetch.total_rows)}
+        </div>
       </div>
     <% end %>
   </div>

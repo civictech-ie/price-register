@@ -58,7 +58,8 @@ defmodule PprApi.MixProject do
       {:quantum, "~> 3.5"},
       {:timex, "~>  3.7"},
       {:mock, "~> 0.3.0", only: :test},
-      {:corsica, "~> 1.1"}
+      {:corsica, "~> 1.1"},
+      {:appsignal_phoenix, "~> 2.6.0"}
     ]
   end
 
