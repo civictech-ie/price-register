@@ -11,10 +11,14 @@ defmodule PprApi.Fetches do
   alias PprApiWeb.Endpoint
 
   @doc """
-  List all fetch records, most recent first.
+  List 50 fetch records, most recent first.
   """
   def list_fetches do
-    Repo.all(from f in Fetch, order_by: [desc: f.inserted_at])
+    from(f in Fetch,
+      order_by: [desc: f.started_at],
+      limit: 50
+    )
+    |> Repo.all()
   end
 
   def get_latest_successful_fetch do

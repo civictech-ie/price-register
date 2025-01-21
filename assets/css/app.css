@@ -15,7 +15,19 @@ html {
   text-rendering: optimizeLegibility;
   --neg: #000;
   --pos: #fff;
-  --accent: #f00;
+  --accent: #f50;
+  --subtle: #f4f4f4;
+}
+
+/* dark mode, listen for prefers-color-scheme */
+
+@media (prefers-color-scheme: dark) {
+  html {
+    --neg: #fff;
+    --pos: #000;
+    --accent: #f50;
+    --subtle: #666;
+  }
 }
 
 body {
@@ -23,6 +35,7 @@ body {
   line-height: 1.4;
   padding: 1rem;
   background: var(--pos);
+  color: var(--neg);
 }
 
 header {
@@ -59,7 +72,7 @@ article {
   max-width: 36rem;
   margin-bottom: 2rem;
   code {
-    background-color: #f4f4f4;
+    background-color: var(--subtle);
   }
 }
 
@@ -72,6 +85,8 @@ article {
     flex: 1;
     font-family: "c-mono", monospace;
     box-shadow: 0 0 0 1px var(--neg);
+    background-color: var(--pos);
+    color: var(--neg);
     border-radius: 1rem;
     padding: 0.25rem 0.75rem;
     font-size: 1rem;
