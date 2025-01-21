@@ -130,6 +130,7 @@ article {
   display: flex;
   flex-direction: column;
   padding: 0.15rem 0;
+  list-style: none;
 }
 
 .table__row {
@@ -146,7 +147,7 @@ article {
   overflow: hidden;
   text-overflow: ellipsis;
   text-transform: uppercase;
-  min-width: 8rem;
+  width: 8rem;
 
   &.--two {
     flex: 2;
@@ -157,7 +158,7 @@ article {
   }
 
   &.--important {
-    display: flex;
+    display: block;
   }
 
   &:last-child {
