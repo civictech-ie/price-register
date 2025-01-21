@@ -117,6 +117,7 @@ article {
 .table {
   .table__header,
   .table__rows {
+    margin: 0;
     width: 100%;
   }
 }
@@ -128,16 +129,6 @@ article {
   border-bottom: 1px solid var(--neg);
 
   .table__row {
-  }
-}
-
-.table__pages {
-  width: 6rem;
-  gap: 1rem;
-  display: flex;
-  justify-content: flex-end;
-
-  button {
   }
 }
 
