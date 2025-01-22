@@ -1,8 +1,7 @@
-/* pull in font from static.civictech.ie/c-mono-400.woff */
-
 @font-face {
   font-family: "c-mono";
-  src: url("/fonts/c-mono-400.woff") format("woff");
+  src: url("https://civictech-static.fra1.cdn.digitaloceanspaces.com/fonts/c-mono-400.woff")
+    format("woff");
   font-weight: 400;
   font-style: normal;
 }

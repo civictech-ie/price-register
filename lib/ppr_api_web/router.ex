@@ -30,7 +30,6 @@ defmodule PprApiWeb.Router do
   scope "/", PprApiWeb do
     pipe_through :browser
 
-    get "/fonts/:font_name", FontController, :get_font
     get "/info", PageController, :info
     get "/docs", PageController, :docs
 
