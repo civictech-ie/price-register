@@ -3,9 +3,30 @@ defmodule PprApiWeb.ResidentialSaleLive.Index do
   alias PprApi.ResidentialSales
 
   def mount(params, _session, socket) do
-    opts =
-      params
-      |> parse_params()
+    if not connected?(socket) do
+      opts = parse_params(params)
+
+      %{entries: residential_sales, metadata: metadata} =
+        ResidentialSales.list_residential_sales(opts)
+
+      socket =
+        socket
+        |> assign(:residential_sales, residential_sales)
+        |> assign(:metadata, metadata)
+        |> assign(:api_path, generate_api_path(opts))
+
+      {:ok, socket}
+    else
+      {:ok,
+       socket
+       |> assign(:residential_sales, [])
+       |> assign(:metadata, %{})
+       |> assign(:api_path, "")}
+    end
+  end
+
+  def handle_params(params, _url, socket) do
+    opts = parse_params(params)
 
     %{entries: residential_sales, metadata: metadata} =
       ResidentialSales.list_residential_sales(opts)
@@ -16,7 +37,7 @@ defmodule PprApiWeb.ResidentialSaleLive.Index do
       |> assign(:metadata, metadata)
       |> assign(:api_path, generate_api_path(opts))
 
-    {:ok, socket}
+    {:noreply, socket}
   end
 
   def handle_params(params, _url, socket) do
