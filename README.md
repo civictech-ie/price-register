@@ -6,6 +6,8 @@ There are a bunch of caveats about the data on the <a href="https://www.property
 
 The API only covers residential properties. Maybe you want to add commercial properties? <a href="https://www.github.com/civictech-ie/price-register">Go ahead</a>.
 
+I have an instance of this running at <a href="https://priceregister.civictech.ie">priceregister.civictech.ie</a>. It should be able to withstand a good bit of traffic, but send me a note if you're planning on hammering it. I may add API keys or rate limiting if it becomes a problem, but for now it's a free-for-all.
+
 I made a public site primarily to illustrate how one might interact with this API. It&rsquo;s generally what you'd expect, I hope. <code>GET /api/v1/residential/sales</code> will return a list of JSON objects.
 
 ## development
