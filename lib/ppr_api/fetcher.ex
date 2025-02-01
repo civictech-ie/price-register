@@ -5,6 +5,7 @@ defmodule PprApi.Fetcher do
 
   @base_url "https://propertypriceregister.ie/website/npsra/ppr/npsra-ppr.nsf/Downloads/"
   @wait_time 5_000
+  @csv_dir System.get_env("FETCH_CSV_DIR") || "./priv/fetches"
 
   @doc """
   Fetches from PPR, month by month, from fetch.starts_on up to the current month.
@@ -15,12 +16,11 @@ defmodule PprApi.Fetcher do
     try do
       fetch
       |> Fetches.mark_fetch_as_fetching()
-      |> fetch_months_recursively(fetch.starts_on)
-      # Mark success at the end
+      |> fetch_months_recursively(fetch.starts_on, csv_saving_enabled?())
       |> Fetches.mark_fetch_success()
     rescue
       e ->
-        # On error, record the message
+        Appsignal.set_error(e, __STACKTRACE__)
         Fetches.mark_fetch_error(fetch, Exception.message(e))
     end
   end
@@ -29,14 +29,21 @@ defmodule PprApi.Fetcher do
     {:error, "Cannot run fetch because its current state is '#{status}'."}
   end
 
+  defp csv_saving_enabled? do
+    case System.get_env("SAVE_FETCH_CSV") do
+      "true" -> true
+      _ -> false
+    end
+  end
+
   # We recursively fetch from `current_date` until we reach today's month
-  defp fetch_months_recursively(%Fetch{} = fetch, %Date{} = current_date) do
+  defp fetch_months_recursively(%Fetch{} = fetch, %Date{} = current_date, save_csv) do
     Process.sleep(@wait_time)
 
     current_date
     |> fetch_data_for_month()
     |> parse_csv()
-    |> upsert_rows()
+    |> upsert_rows(fetch, save_csv)
     |> update_fetch_progress(fetch, current_date)
 
     next_month =
@@ -47,7 +54,7 @@ defmodule PprApi.Fetcher do
 
     # Keep going if we're still behind the current month
     if Date.compare(next_month, Date.utc_today() |> Date.beginning_of_month()) in [:lt, :eq] do
-      fetch_months_recursively(fetch, next_month)
+      fetch_months_recursively(fetch, next_month, save_csv)
     end
 
     fetch
@@ -146,17 +153,76 @@ defmodule PprApi.Fetcher do
 
   defp normalise_text(str), do: str |> String.downcase() |> String.trim()
 
-  defp upsert_rows(rows) do
+  defp upsert_rows(rows, %Fetch{started_at: started_at, starts_on: starts_on}, true) do
+    File.mkdir_p!(@csv_dir)
+
+    filename =
+      Path.join(
+        @csv_dir,
+        "#{Date.to_string(starts_on)}-#{DateTime.to_date(started_at) |> Date.to_string()}.csv"
+      )
+
+    columns = [
+      :date_of_sale,
+      :address,
+      :county,
+      :eircode,
+      :price_in_euros,
+      :not_full_market_price,
+      :vat_exclusive,
+      :description_of_property,
+      :property_size_description
+    ]
+
+    unless File.exists?(filename) do
+      # Convert column names (atoms) to strings for the header.
+      header = [Enum.map(columns, &Atom.to_string/1)]
+      header_iodata = CSV.dump_to_iodata(header)
+      File.write!(filename, header_iodata)
+    end
+
+    data_rows =
+      rows
+      |> Enum.map(fn row ->
+        Enum.map(columns, &format_value_for_csv(Map.get(row, &1)))
+      end)
+
+    data_iodata = CSV.dump_to_iodata(data_rows)
+    File.write!(filename, data_iodata, [:append])
+
+    upsert_rows(rows, %Fetch{}, false)
+  end
+
+  defp format_value_for_csv(value) do
+    cond do
+      is_nil(value) ->
+        ""
+
+      match?(%Decimal{}, value) ->
+        Decimal.to_string(value)
+
+      match?(%Date{}, value) ->
+        Date.to_string(value)
+
+      is_boolean(value) ->
+        to_string(value)
+
+      true ->
+        to_string(value)
+    end
+  end
+
+  defp upsert_rows(rows, _fetch, false) do
     # Upsert rows into the database, returning the count of upserted rows
     ResidentialSales.upsert_rows(rows)
   end
 
-  defp update_fetch_progress(count, fetch, current_month) do
+  defp update_fetch_progress(rows, fetch, current_month) do
     fetch
     |> Fetches.update_fetch_progress(%{
       status: "fetching",
       current_month: current_month,
-      increment_by: count
+      increment_by: rows
     })
   end
 end

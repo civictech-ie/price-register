@@ -10,6 +10,8 @@ defmodule PprApi.Fetches do
   alias PprApi.Fetches.Fetch
   alias PprApiWeb.Endpoint
 
+  @first_month_on_record ~D[2010-01-01]
+
   @doc """
   List 50 fetch records, most recent first.
   """
@@ -80,7 +82,7 @@ defmodule PprApi.Fetches do
     fetch =
       %Fetch{}
       |> Fetch.changeset(%{
-        starts_on: starts_on || ~D[2010-01-01],
+        starts_on: starts_on || @first_month_on_record,
         current_month: starts_on,
         started_at: DateTime.utc_now()
       })
