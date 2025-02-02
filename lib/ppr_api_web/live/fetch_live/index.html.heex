@@ -18,8 +18,12 @@
     <%= for fetch <- @fetches do %>
       <div class="table__row">
         <div class="table__cell --important">{fetch.status}</div>
-        <div class="table__cell --important" title={fetch.finished_at}>
-          {Timex.format!(fetch.finished_at, "{0D}/{0M}/{YY}")}
+        <div class="table__cell --important" title={fetch.finished_at || ""}>
+          <%= if fetch.finished_at do %>
+            {Timex.format!(fetch.finished_at, "{0D}/{0M}/{YY}")}
+          <% else %>
+            &ndash;
+          <% end %>
         </div>
         <div class="table__cell --important">
           {PprApi.Cldr.Number.to_string!(fetch.total_rows)}
