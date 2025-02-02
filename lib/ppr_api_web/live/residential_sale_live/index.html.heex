@@ -18,7 +18,13 @@
   <ol class="table__rows">
     <%= for residential_sale <- @residential_sales do %>
       <li>
-        <div class="table__row">
+        <div
+          class="table__row hover-inspector"
+          data-json={
+            Jason.encode!(PprApiWeb.API.ResidentialSaleJSON.data(residential_sale), pretty: true)
+          }
+          id={"sale-#{residential_sale.id}"}
+        >
           <div class="table__cell --important">
             {Timex.format!(residential_sale.date_of_sale, "{0D}/{0M}/{YY}")}
           </div>

@@ -28,3 +28,20 @@ liveSocket.connect();
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket;
+
+document.addEventListener("DOMContentLoaded", () => {
+  const inspectors = document.querySelectorAll(".hover-inspector");
+
+  inspectors.forEach((inspector) => {
+    inspector.addEventListener("mousemove", (event) => {
+      // Where do we want the tooltip?
+      // For a small offset, say +15 on the X, +15 on the Y:
+      const x = event.clientX + 15;
+      const y = event.clientY - 15;
+
+      // Update the element’s style for the `::after` position
+      inspector.style.setProperty("--tooltip-left", `${x}px`);
+      inspector.style.setProperty("--tooltip-top", `${y}px`);
+    });
+  });
+});

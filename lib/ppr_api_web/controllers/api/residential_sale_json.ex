@@ -11,7 +11,13 @@ defmodule PprApiWeb.API.ResidentialSaleJSON do
     }
   end
 
-  defp data(%ResidentialSale{} = residential_sale) do
+  def show(%{entry: residential_sale}) do
+    %{
+      data: data(residential_sale)
+    }
+  end
+
+  def data(%ResidentialSale{} = residential_sale) do
     %{
       date_of_sale: residential_sale.date_of_sale,
       address: residential_sale.address,
