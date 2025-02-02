@@ -129,10 +129,6 @@ article {
   border-bottom: 1px solid var(--neg);
 
   .table__row {
-    &:hover {
-      cursor: default;
-      color: var(--neg);
-    }
   }
 }
 
@@ -148,17 +144,16 @@ article {
   flex-direction: row;
   padding: 0.2rem 0;
   gap: 1rem;
+}
+
+.hover-inspector {
+  position: relative;
   &:hover {
     cursor: help;
     color: var(--accent);
   }
 }
 
-.hover-inspector {
-  position: relative;
-}
-
-/* The pseudo-element draws from `attr(data-json)` */
 .hover-inspector::after {
   content: attr(data-json);
   position: fixed;
@@ -176,7 +171,6 @@ article {
   color: var(--neg);
 }
 
-/* Only becomes visible after 1s of hovering */
 .hover-inspector:hover::after {
   opacity: 1;
   transition-delay: 1s;
