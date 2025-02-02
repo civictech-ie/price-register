@@ -49,7 +49,17 @@ defmodule PprApi.ResidentialSales do
   Current count of residential sales.
   """
   def total_residential_sales do
-    Repo.aggregate(ResidentialSale, :count, :id)
+    case PprApi.Fetches.get_latest_successful_fetch() do
+      %Fetch{started_at: started_at} ->
+        Repo.aggregate(
+          from(s in ResidentialSale, where: s.updated_at >= ^started_at),
+          :count,
+          :id
+        )
+
+      _ ->
+        0
+    end
   end
 
   @doc """
@@ -179,13 +189,26 @@ defmodule PprApi.ResidentialSales do
   # still show me further in the previous direction.)
 
   defp get_sales_and_peek(opts) do
-    entries =
+    last_fetch_time =
+      case PprApi.Fetches.get_latest_successful_fetch() do
+        %Fetch{started_at: started_at} -> started_at
+        _ -> nil
+      end
+
+    query =
       ResidentialSale
       |> apply_cursor(opts)
       |> apply_order(opts)
       |> apply_limit(opts)
-      |> Repo.all()
-      |> apply_corrective_flip(opts)
+
+    query =
+      if last_fetch_time do
+        query |> where([s], s.updated_at >= ^last_fetch_time)
+      else
+        query
+      end
+
+    entries = Repo.all(query) |> apply_corrective_flip(opts)
 
     before_entry = set_peek_entry(:before, entries, opts)
     after_entry = set_peek_entry(:after, entries, opts)
