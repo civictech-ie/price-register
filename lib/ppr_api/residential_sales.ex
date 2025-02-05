@@ -49,13 +49,9 @@ defmodule PprApi.ResidentialSales do
   Current count of residential sales.
   """
   def total_residential_sales do
-    case PprApi.Fetches.get_latest_successful_fetch() do
-      %Fetch{started_at: started_at} ->
-        Repo.aggregate(
-          from(s in ResidentialSale, where: s.updated_at >= ^started_at),
-          :count,
-          :id
-        )
+    case Fetches.get_latest_successful_full_fetch() do
+      %Fetch{total_rows: total_rows} ->
+        total_rows
 
       _ ->
         0

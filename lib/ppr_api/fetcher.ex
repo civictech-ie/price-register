@@ -62,12 +62,19 @@ defmodule PprApi.Fetcher do
 
   # Builds the URL and fetches the CSV data for a given Date
   defp fetch_data_for_month(%Date{} = date) do
-    %{body: body} =
-      date
-      |> url_for_month()
-      |> HTTPoison.get!(%{}, hackney: [:insecure])
+    case HTTPoison.get(url_for_month(date), %{}, hackney: [:insecure]) do
+      {:ok, %HTTPoison.Response{status_code: 200, headers: headers, body: body}}
+        when content_type_csv?(headers) ->
+        body
 
-    body
+      # Handles 200 but not CSV, 404, etc. by returning an empty string
+      {:ok, _response} ->
+        ""
+
+      # If it’s some real HTTP error, raise
+      {:error, reason} ->
+        raise "Error fetching CSV for #{date}: #{inspect(reason)}"
+    end
   end
 
   defp url_for_month(%Date{year: year, month: month}) do
@@ -79,6 +86,8 @@ defmodule PprApi.Fetcher do
   end
 
   # Parses CSV data into a list of maps that match the ResidentialSale fields
+  defp parse_csv(""), do: []
+
   defp parse_csv(csv_data) do
     csv_data
     |> CSV.parse_string(skip_headers: true)
@@ -224,5 +233,13 @@ defmodule PprApi.Fetcher do
       current_month: current_month,
       increment_by: rows
     })
+  end
+
+  defp content_type_csv?(headers) do
+    headers
+    |> Enum.any?(fn {key, val} ->
+      String.downcase(key) == "content-type" and
+        String.downcase(val) =~ "text/csv"
+    end)
   end
 end

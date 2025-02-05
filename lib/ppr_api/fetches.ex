@@ -32,6 +32,15 @@ defmodule PprApi.Fetches do
     |> Repo.one()
   end
 
+  def get_latest_successful_full_fetch do
+    from(f in Fetch,
+      where: f.status == "success" and f.starts_on == ^@first_month_on_record,
+      order_by: [desc: f.finished_at],
+      limit: 1
+    )
+    |> Repo.one()
+  end
+
   @doc """
   Fetch the latest updates from the Property Register.
   Starts syncing from the month of the latest sale in the db.
