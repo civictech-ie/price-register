@@ -60,21 +60,20 @@ defmodule PprApi.Fetcher do
     fetch
   end
 
-  # Builds the URL and fetches the CSV data for a given Date
+  # Builds the URL and fetches the CSV data for a given Date, returns "" if not a CSV
   defp fetch_data_for_month(%Date{} = date) do
     case HTTPoison.get(url_for_month(date), %{}, hackney: [:insecure]) do
-      {:ok, %HTTPoison.Response{status_code: 200, headers: headers, body: body}}
-        when content_type_csv?(headers) ->
-        body
-
-      # Handles 200 but not CSV, 404, etc. by returning an empty string
-      {:ok, _response} ->
-        ""
-
-      # If it’s some real HTTP error, raise
-      {:error, reason} ->
-        raise "Error fetching CSV for #{date}: #{inspect(reason)}"
-    end
+        {:ok, %HTTPoison.Response{status_code: 200, headers: headers, body: body}} ->
+          if content_type_csv?(headers) do
+            body
+          else
+            ""
+          end
+        {:ok, _response} ->
+          ""
+        {:error, reason} ->
+          raise "Error fetching CSV for #{date}: #{inspect(reason)}"
+      end
   end
 
   defp url_for_month(%Date{year: year, month: month}) do
@@ -202,6 +201,11 @@ defmodule PprApi.Fetcher do
     upsert_rows(rows, %Fetch{}, false)
   end
 
+  defp upsert_rows(rows, _fetch, false) do
+    # Upsert rows into the database, returning the count of upserted rows
+    ResidentialSales.upsert_rows(rows)
+  end
+
   defp format_value_for_csv(value) do
     cond do
       is_nil(value) ->
@@ -219,11 +223,6 @@ defmodule PprApi.Fetcher do
       true ->
         to_string(value)
     end
-  end
-
-  defp upsert_rows(rows, _fetch, false) do
-    # Upsert rows into the database, returning the count of upserted rows
-    ResidentialSales.upsert_rows(rows)
   end
 
   defp update_fetch_progress(rows, fetch, current_month) do

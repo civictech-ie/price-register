@@ -186,7 +186,7 @@ defmodule PprApi.ResidentialSales do
 
   defp get_sales_and_peek(opts) do
     last_fetch_time =
-      case PprApi.Fetches.get_latest_successful_fetch() do
+      case PprApi.Fetches.get_latest_successful_full_fetch() do
         %Fetch{started_at: started_at} -> started_at
         _ -> nil
       end
