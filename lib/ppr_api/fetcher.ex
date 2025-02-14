@@ -63,17 +63,19 @@ defmodule PprApi.Fetcher do
   # Builds the URL and fetches the CSV data for a given Date, returns "" if not a CSV
   defp fetch_data_for_month(%Date{} = date) do
     case HTTPoison.get(url_for_month(date), %{}, hackney: [:insecure]) do
-        {:ok, %HTTPoison.Response{status_code: 200, headers: headers, body: body}} ->
-          if content_type_csv?(headers) do
-            body
-          else
-            ""
-          end
-        {:ok, _response} ->
+      {:ok, %HTTPoison.Response{status_code: 200, headers: headers, body: body}} ->
+        if content_type_is_octet_stream?(headers) do
+          body
+        else
           ""
-        {:error, reason} ->
-          raise "Error fetching CSV for #{date}: #{inspect(reason)}"
-      end
+        end
+
+      {:ok, _response} ->
+        ""
+
+      {:error, reason} ->
+        raise "Error fetching CSV for #{date}: #{inspect(reason)}"
+    end
   end
 
   defp url_for_month(%Date{year: year, month: month}) do
@@ -234,11 +236,11 @@ defmodule PprApi.Fetcher do
     })
   end
 
-  defp content_type_csv?(headers) do
+  defp content_type_is_octet_stream?(headers) do
     headers
     |> Enum.any?(fn {key, val} ->
       String.downcase(key) == "content-type" and
-        String.downcase(val) =~ "text/csv"
+        String.contains?(String.downcase(val), "application/octet-stream")
     end)
   end
 end
