@@ -5,6 +5,9 @@ defmodule PprApi.Application do
 
   @impl true
   def start(_type, _args) do
+    # Configure AppSignal logger handler
+    Appsignal.Logger.Handler.add("ppr_api")
+
     children = [
       PprApiWeb.Telemetry,
       PprApi.Repo,
