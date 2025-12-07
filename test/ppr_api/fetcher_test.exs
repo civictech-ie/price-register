@@ -6,9 +6,11 @@ defmodule PprApi.FetcherTest do
   alias PprApi.Fetcher
 
   describe "run_fetch/1" do
-    @tag timeout: 120_000
+    @tag timeout: 30_000
     test "successfully processes fetch and updates status" do
-      fetch = fetch_fixture(%{status: "starting", starts_on: ~D[2023-01-01]})
+      # Use current month so it only fetches one month
+      current_month = Date.utc_today() |> Date.beginning_of_month()
+      fetch = fetch_fixture(%{status: "starting", starts_on: current_month})
 
       csv_data = """
       Date of Sale (dd/mm/yyyy),Address,County,Eircode,Price (€),Not Full Market Price,VAT Exclusive,Description of Property,Property Size Description
