@@ -62,7 +62,9 @@ defmodule PprApi.Fetcher do
 
   # Builds the URL and fetches the CSV data for a given Date, returns "" if not a CSV
   defp fetch_data_for_month(%Date{} = date) do
-    case HTTPoison.get(url_for_month(date), %{}, hackney: [:insecure]) do
+    url = url_for_month(date)
+
+    case HTTPoison.get(url, %{}, hackney: [:insecure, pool: :none]) do
       {:ok, %HTTPoison.Response{status_code: 200, headers: headers, body: body}} ->
         if content_type_is_octet_stream?(headers) do
           body
@@ -70,10 +72,44 @@ defmodule PprApi.Fetcher do
           ""
         end
 
-      {:ok, _response} ->
+      {:ok, response} ->
+        # Log non-200 responses to AppSignal for debugging
+        Appsignal.add_breadcrumb("http_request", "Non-200 response", %{
+          url: url,
+          date: Date.to_string(date),
+          status_code: response.status_code,
+          headers: inspect(response.headers)
+        })
+
         ""
 
-      {:error, reason} ->
+      {:error, %HTTPoison.Error{reason: reason, id: id} = error} ->
+        # Add detailed context to AppSignal before raising
+        Appsignal.set_namespace("fetcher")
+
+        # Add tags for filtering in AppSignal
+        Appsignal.add_tag("error_reason", to_string(reason))
+        Appsignal.add_tag("fetch_date", Date.to_string(date))
+        Appsignal.add_tag("fetch_year", to_string(date.year))
+        Appsignal.add_tag("fetch_month", to_string(date.month))
+
+        # Add custom metadata for detailed debugging
+        Appsignal.add_custom_data(%{
+          url: url,
+          date: Date.to_string(date),
+          error_reason: reason,
+          error_id: id,
+          error_module: inspect(error.__struct__),
+          httpoison_error: inspect(error)
+        })
+
+        # Add breadcrumb trail
+        Appsignal.add_breadcrumb("http_request", "HTTPoison error", %{
+          url: url,
+          reason: to_string(reason),
+          id: inspect(id)
+        })
+
         raise "Error fetching CSV for #{date}: #{inspect(reason)}"
     end
   end
