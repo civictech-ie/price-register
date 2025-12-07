@@ -1,11 +1,11 @@
 defmodule PprApi.Fetcher do
+  require Logger
   alias PprApi.{ResidentialSales, Fetches}
   alias PprApi.Fetches.Fetch
   alias NimbleCSV.RFC4180, as: CSV
 
   @base_url "https://propertypriceregister.ie/website/npsra/ppr/npsra-ppr.nsf/Downloads/"
   @wait_time 5_000
-  @csv_dir System.get_env("FETCH_CSV_DIR") || "./priv/fetches"
 
   @doc """
   Fetches from PPR, month by month, from fetch.starts_on up to the current month.
@@ -198,13 +198,8 @@ defmodule PprApi.Fetcher do
   defp normalise_text(str), do: str |> String.downcase() |> String.trim()
 
   defp upsert_rows(rows, %Fetch{started_at: started_at, starts_on: starts_on}, true) do
-    File.mkdir_p!(@csv_dir)
-
-    filename =
-      Path.join(
-        @csv_dir,
-        "#{Date.to_string(starts_on)}-#{DateTime.to_date(started_at) |> Date.to_string()}.csv"
-      )
+    storage = storage_adapter()
+    path = storage.generate_path(starts_on, started_at)
 
     columns = [
       :date_of_sale,
@@ -218,21 +213,31 @@ defmodule PprApi.Fetcher do
       :property_size_description
     ]
 
-    unless File.exists?(filename) do
-      # Convert column names (atoms) to strings for the header.
-      header = [Enum.map(columns, &Atom.to_string/1)]
-      header_iodata = CSV.dump_to_iodata(header)
-      File.write!(filename, header_iodata)
+    # Build CSV content - header + data rows
+    csv_content =
+      case storage.download(path) do
+        {:ok, _existing} ->
+          # File exists, just add data rows
+          data_rows_to_csv(rows, columns)
+
+        {:error, :not_found} ->
+          # File doesn't exist, add header + data rows
+          header = [Enum.map(columns, &Atom.to_string/1)]
+          header_csv = CSV.dump_to_iodata(header) |> IO.iodata_to_binary()
+          data_csv = data_rows_to_csv(rows, columns)
+          header_csv <> data_csv
+
+        {:error, reason} ->
+          Logger.error("Failed to check storage file: #{inspect(reason)}")
+          # Continue with just data rows
+          data_rows_to_csv(rows, columns)
+      end
+
+    # Append to storage
+    case storage.append(path, csv_content) do
+      {:ok, _} -> :ok
+      {:error, reason} -> Logger.error("Failed to upload CSV: #{inspect(reason)}")
     end
-
-    data_rows =
-      rows
-      |> Enum.map(fn row ->
-        Enum.map(columns, &format_value_for_csv(Map.get(row, &1)))
-      end)
-
-    data_iodata = CSV.dump_to_iodata(data_rows)
-    File.write!(filename, data_iodata, [:append])
 
     upsert_rows(rows, %Fetch{}, false)
   end
@@ -240,6 +245,19 @@ defmodule PprApi.Fetcher do
   defp upsert_rows(rows, _fetch, false) do
     # Upsert rows into the database, returning the count of upserted rows
     ResidentialSales.upsert_rows(rows)
+  end
+
+  defp data_rows_to_csv(rows, columns) do
+    rows
+    |> Enum.map(fn row ->
+      Enum.map(columns, &format_value_for_csv(Map.get(row, &1)))
+    end)
+    |> CSV.dump_to_iodata()
+    |> IO.iodata_to_binary()
+  end
+
+  defp storage_adapter do
+    Application.get_env(:ppr_api, :storage_adapter, PprApi.Storage.LocalDisk)
   end
 
   defp format_value_for_csv(value) do

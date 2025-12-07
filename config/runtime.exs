@@ -21,6 +21,19 @@ if System.get_env("PHX_SERVER") do
 end
 
 if config_env() == :prod do
+  # Use R2 storage in production by default, but allow override via STORAGE_ADAPTER env var
+  storage_adapter =
+    case System.get_env("STORAGE_ADAPTER") do
+      "LocalDisk" -> PprApi.Storage.LocalDisk
+      "R2" -> PprApi.Storage.R2
+      nil -> PprApi.Storage.R2  # Default to R2 in production
+      other ->
+        IO.warn("Unknown STORAGE_ADAPTER: #{other}, defaulting to R2")
+        PprApi.Storage.R2
+    end
+
+  config :ppr_api, :storage_adapter, storage_adapter
+
   database_url =
     System.get_env("DATABASE_URL") ||
       raise """
@@ -114,4 +127,18 @@ if config_env() == :prod do
   #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+
+  # ## Configuring R2 Storage
+  config :ppr_api, :r2_bucket, System.get_env("R2_BUCKET")
+
+  # Configure ExAws for R2 (S3-compatible API)
+  config :ex_aws,
+    access_key_id: System.get_env("R2_ACCESS_KEY_ID"),
+    secret_access_key: System.get_env("R2_SECRET_ACCESS_KEY"),
+    region: "auto"
+
+  config :ex_aws, :s3,
+    scheme: "https://",
+    host: System.get_env("R2_ENDPOINT"),
+    region: "auto"
 end

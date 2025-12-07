@@ -10,7 +10,11 @@ import Config
 config :ppr_api,
   ecto_repos: [PprApi.Repo],
   generators: [timestamp_type: :utc_datetime],
-  scheduler_enabled: true
+  scheduler_enabled: true,
+  # Storage adapter can be configured via STORAGE_ADAPTER env var
+  # Options: "LocalDisk", "R2"
+  # Default: LocalDisk in dev/test, R2 in production
+  storage_adapter: PprApi.Storage.LocalDisk
 
 # Configures the endpoint
 config :ppr_api, PprApiWeb.Endpoint,

@@ -59,7 +59,10 @@ defmodule PprApi.MixProject do
       {:timex, "~>  3.7"},
       {:mock, "~> 0.3.0", only: :test},
       {:corsica, "~> 1.1"},
-      {:appsignal_phoenix, "~> 2.6.0"}
+      {:appsignal_phoenix, "~> 2.6.0"},
+      {:ex_aws, "~> 2.5"},
+      {:ex_aws_s3, "~> 2.5"},
+      {:sweet_xml, "~> 0.7"}
     ]
   end
 
