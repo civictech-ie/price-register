@@ -53,11 +53,6 @@ config :ppr_api, PprApi.Scheduler,
     {"0 3 * * 0", {PprApi.Fetches, :fetch_all_sales, [true]}}
   ]
 
-config :ex_cldr, PprApi.Cldr,
-  default_locale: "en",
-  locales: ["en"],
-  providers: [Cldr.Number]
-
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 

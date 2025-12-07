@@ -86,16 +86,20 @@ defmodule PprApi.Fetcher do
 
       {:error, %HTTPoison.Error{reason: reason, id: id} = error} ->
         # Add detailed context to AppSignal before raising
-        Appsignal.set_namespace("fetcher")
+        span = Appsignal.Tracer.root_span()
+
+        Appsignal.Span.set_namespace(span, "background_job")
 
         # Add tags for filtering in AppSignal
-        Appsignal.add_tag("error_reason", to_string(reason))
-        Appsignal.add_tag("fetch_date", Date.to_string(date))
-        Appsignal.add_tag("fetch_year", to_string(date.year))
-        Appsignal.add_tag("fetch_month", to_string(date.month))
+        Appsignal.Span.set_sample_data(span, "tags", %{
+          error_reason: to_string(reason),
+          fetch_date: Date.to_string(date),
+          fetch_year: to_string(date.year),
+          fetch_month: to_string(date.month)
+        })
 
         # Add custom metadata for detailed debugging
-        Appsignal.add_custom_data(%{
+        Appsignal.Span.set_sample_data(span, "custom_data", %{
           url: url,
           date: Date.to_string(date),
           error_reason: reason,

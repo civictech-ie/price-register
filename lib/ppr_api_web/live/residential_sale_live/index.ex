@@ -40,23 +40,6 @@ defmodule PprApiWeb.ResidentialSaleLive.Index do
     {:noreply, socket}
   end
 
-  def handle_params(params, _url, socket) do
-    opts =
-      params
-      |> parse_params()
-
-    %{entries: residential_sales, metadata: metadata} =
-      ResidentialSales.list_residential_sales(opts)
-
-    socket =
-      socket
-      |> assign(:residential_sales, residential_sales)
-      |> assign(:metadata, metadata)
-      |> assign(:api_path, generate_api_path(opts))
-
-    {:noreply, socket}
-  end
-
   def handle_event("previous", _params, socket) do
     params =
       socket.assigns.metadata

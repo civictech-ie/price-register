@@ -40,7 +40,10 @@ defmodule PprApi.ResidentialSalesTest do
         %{
           date_of_sale: ~D[2023-01-01],
           address: "78 The Coombe",
-          price_in_euros: Decimal.new("100000")
+          county: "Dublin",
+          price_in_euros: Decimal.new("100000"),
+          not_full_market_price: false,
+          vat_exclusive: false
         }
       ]
 
@@ -55,12 +58,18 @@ defmodule PprApi.ResidentialSalesTest do
         %{
           date_of_sale: existing.date_of_sale,
           address: existing.address,
-          price_in_euros: existing.price_in_euros
+          county: existing.county,
+          price_in_euros: existing.price_in_euros,
+          not_full_market_price: existing.not_full_market_price,
+          vat_exclusive: existing.vat_exclusive
         },
         %{
           date_of_sale: existing.date_of_sale,
           address: existing.address,
-          price_in_euros: existing.price_in_euros
+          county: existing.county,
+          price_in_euros: existing.price_in_euros,
+          not_full_market_price: existing.not_full_market_price,
+          vat_exclusive: existing.vat_exclusive
         }
       ]
 

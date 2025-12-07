@@ -29,10 +29,6 @@ defmodule PprApi.PropertyRegister do
   end
 
   defp parse_last_update_time(html) do
-    {:ok, doc} = Floki.parse_document(html)
-    [update | _] = Floki.find(doc, "#LastUpdated")
-    [_, date_str] = Regex.run(~r/(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})/, Floki.text(update))
-
     with {:ok, document} <- Floki.parse_document(html),
          [update_time | _] <- Floki.find(document, "#LastUpdated"),
          update_time_text = Floki.text(update_time),
@@ -44,7 +40,7 @@ defmodule PprApi.PropertyRegister do
            Timex.to_datetime(naive_datetime, "Europe/Dublin") do
       {:ok, local_datetime |> Timex.to_datetime("Europe/Dublin")}
     else
-      error ->
+      _error ->
         {:error, :timestamp_not_found}
     end
   end

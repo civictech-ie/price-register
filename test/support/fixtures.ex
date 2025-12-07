@@ -23,7 +23,10 @@ defmodule PprApi.Fixtures do
       |> Enum.into(%{
         date_of_sale: ~D[2023-01-01],
         address: "123 Test St",
-        price_in_euros: Decimal.new("100000")
+        county: "Dublin",
+        price_in_euros: Decimal.new("100000"),
+        not_full_market_price: false,
+        vat_exclusive: false
       })
       |> then(&ResidentialSale.changeset(%ResidentialSale{}, &1))
       |> Repo.insert()
