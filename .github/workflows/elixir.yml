@@ -19,8 +19,10 @@ jobs:
           - 5432:5432
         env:
           POSTGRES_DB: ppr_api_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
         options: >-
-          --health-cmd "pg_isready"
+          --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -43,13 +45,17 @@ jobs:
       - name: Install dependencies
         run: mix deps.get
 
+      - name: Compile
+        run: mix compile --warnings-as-errors
+        env:
+          MIX_ENV: test
+
       - name: Set up the database
         run: |
           mix ecto.create
           mix ecto.migrate
         env:
           MIX_ENV: test
-          DATABASE_URL: ecto://postgres:postgres@localhost/ppr_api_test
 
       - name: Run tests
         run: mix test
