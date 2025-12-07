@@ -73,13 +73,14 @@ defmodule PprApi.Fetcher do
         end
 
       {:ok, response} ->
-        # Log non-200 responses to AppSignal for debugging
-        Appsignal.add_breadcrumb("http_request", "Non-200 response", %{
+        # Log non-200 responses for debugging
+        require Logger
+
+        Logger.warning("Non-200 response from Property Register",
           url: url,
           date: Date.to_string(date),
-          status_code: response.status_code,
-          headers: inspect(response.headers)
-        })
+          status_code: response.status_code
+        )
 
         ""
 
@@ -101,13 +102,6 @@ defmodule PprApi.Fetcher do
           error_id: id,
           error_module: inspect(error.__struct__),
           httpoison_error: inspect(error)
-        })
-
-        # Add breadcrumb trail
-        Appsignal.add_breadcrumb("http_request", "HTTPoison error", %{
-          url: url,
-          reason: to_string(reason),
-          id: inspect(id)
         })
 
         raise "Error fetching CSV for #{date}: #{inspect(reason)}"
