@@ -62,9 +62,13 @@ defmodule PprApi.Fetcher do
 
   # Builds the URL and fetches the CSV data for a given Date, returns "" if not a CSV
   defp fetch_data_for_month(%Date{} = date) do
+    fetch_data_for_month_with_retry(date, 3)
+  end
+
+  defp fetch_data_for_month_with_retry(%Date{} = date, retries_left) when retries_left > 0 do
     url = url_for_month(date)
 
-    case HTTPoison.get(url, %{}, hackney: [:insecure, pool: :none]) do
+    case HTTPoison.get(url, %{}, hackney: [:insecure], recv_timeout: 30_000, timeout: 30_000) do
       {:ok, %HTTPoison.Response{status_code: 200, headers: headers, body: body}} ->
         if content_type_is_octet_stream?(headers) do
           body
@@ -85,30 +89,43 @@ defmodule PprApi.Fetcher do
         ""
 
       {:error, %HTTPoison.Error{reason: reason, id: id} = error} ->
-        # Add detailed context to AppSignal before raising
-        span = Appsignal.Tracer.root_span()
-
-        Appsignal.Span.set_namespace(span, "background_job")
-
-        # Add tags for filtering in AppSignal
-        Appsignal.Span.set_sample_data(span, "tags", %{
-          error_reason: to_string(reason),
-          fetch_date: Date.to_string(date),
-          fetch_year: to_string(date.year),
-          fetch_month: to_string(date.month)
-        })
-
-        # Add custom metadata for detailed debugging
-        Appsignal.Span.set_sample_data(span, "custom_data", %{
+        Logger.warning("HTTP error fetching CSV, retries left: #{retries_left - 1}",
           url: url,
           date: Date.to_string(date),
-          error_reason: reason,
-          error_id: id,
-          error_module: inspect(error.__struct__),
-          httpoison_error: inspect(error)
-        })
+          reason: inspect(reason)
+        )
 
-        raise "Error fetching CSV for #{date}: #{inspect(reason)}"
+        # Retry with exponential backoff
+        if retries_left > 1 do
+          backoff = (4 - retries_left) * 2_000  # 2s, 4s
+          Process.sleep(backoff)
+          fetch_data_for_month_with_retry(date, retries_left - 1)
+        else
+          # Final retry failed, add detailed context to AppSignal before raising
+          span = Appsignal.Tracer.root_span()
+
+          Appsignal.Span.set_namespace(span, "background_job")
+
+          # Add tags for filtering in AppSignal
+          Appsignal.Span.set_sample_data(span, "tags", %{
+            error_reason: to_string(reason),
+            fetch_date: Date.to_string(date),
+            fetch_year: to_string(date.year),
+            fetch_month: to_string(date.month)
+          })
+
+          # Add custom metadata for detailed debugging
+          Appsignal.Span.set_sample_data(span, "custom_data", %{
+            url: url,
+            date: Date.to_string(date),
+            error_reason: reason,
+            error_id: id,
+            error_module: inspect(error.__struct__),
+            httpoison_error: inspect(error)
+          })
+
+          raise "Error fetching CSV for #{date}: #{inspect(reason)}"
+        end
     end
   end
 
