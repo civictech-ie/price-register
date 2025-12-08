@@ -55,9 +55,9 @@ defmodule PprApi.Fetcher do
     # Keep going if we're still behind the current month
     if Date.compare(next_month, Date.utc_today() |> Date.beginning_of_month()) in [:lt, :eq] do
       fetch_months_recursively(fetch, next_month, save_csv)
+    else
+      fetch
     end
-
-    fetch
   end
 
   # Builds the URL and fetches the CSV data for a given Date, returns "" if not a CSV
