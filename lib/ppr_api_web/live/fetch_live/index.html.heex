@@ -11,7 +11,7 @@
       <div class="table__cell --important">Status</div>
       <div class="table__cell --important">Finished</div>
       <div class="table__cell --important">Total rows</div>
-      <div class="table__cell --important">CSV</div>
+      <%!-- <div class="table__cell --important">CSV</div> --%>
     </div>
   </div>
 
@@ -29,13 +29,13 @@
         <div class="table__cell --important">
           {PprApi.Cldr.Number.to_string!(fetch.total_rows)}
         </div>
-        <div class="table__cell --important">
+        <%!-- <div class="table__cell --important">
           <%= if csv_url do %>
             <a href={csv_url} target="_blank" rel="noopener noreferrer">Download</a>
           <% else %>
             &ndash;
           <% end %>
-        </div>
+        </div> --%>
       </div>
     <% end %>
   </div>
