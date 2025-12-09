@@ -172,6 +172,37 @@ defmodule PprApi.Fetches do
     updated_fetch
   end
 
+  @doc """
+  Get the CSV download URL for a fetch if it exists in storage.
+  Returns nil if CSV saving is disabled or if fetch hasn't completed.
+  """
+  def get_csv_download_url(%Fetch{status: "success", starts_on: starts_on, started_at: started_at}) do
+    if csv_saving_enabled?() do
+      storage = storage_adapter()
+      path = storage.generate_path(starts_on, started_at)
+
+      case storage.presigned_url(path) do
+        {:ok, url} -> url
+        {:error, _} -> nil
+      end
+    else
+      nil
+    end
+  end
+
+  def get_csv_download_url(_fetch), do: nil
+
+  defp csv_saving_enabled? do
+    case System.get_env("SAVE_FETCH_CSV") do
+      "true" -> true
+      _ -> false
+    end
+  end
+
+  defp storage_adapter do
+    Application.get_env(:ppr_api, :storage_adapter, PprApi.Storage.LocalDisk)
+  end
+
   defp broadcast_updates do
     Endpoint.broadcast("fetches_topic", "fetches_updated", %{})
   end

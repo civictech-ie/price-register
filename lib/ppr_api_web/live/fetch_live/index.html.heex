@@ -11,11 +11,12 @@
       <div class="table__cell --important">Status</div>
       <div class="table__cell --important">Finished</div>
       <div class="table__cell --important">Total rows</div>
+      <div class="table__cell --important">CSV</div>
     </div>
   </div>
 
   <div class="table__rows">
-    <%= for fetch <- @fetches do %>
+    <%= for %{fetch: fetch, csv_url: csv_url} <- @fetches do %>
       <div class="table__row">
         <div class="table__cell --important">{fetch.status}</div>
         <div class="table__cell --important" title={fetch.finished_at || ""}>
@@ -27,6 +28,13 @@
         </div>
         <div class="table__cell --important">
           {PprApi.Cldr.Number.to_string!(fetch.total_rows)}
+        </div>
+        <div class="table__cell --important">
+          <%= if csv_url do %>
+            <a href={csv_url} target="_blank" rel="noopener noreferrer">Download</a>
+          <% else %>
+            &ndash;
+          <% end %>
         </div>
       </div>
     <% end %>

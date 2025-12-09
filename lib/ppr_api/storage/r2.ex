@@ -91,6 +91,27 @@ defmodule PprApi.Storage.R2 do
     "fetches/#{Date.to_string(starts_on)}-#{Date.to_string(end_date)}.csv"
   end
 
+  @doc """
+  Generate a presigned URL for downloading a file from R2.
+
+  ## Parameters
+    - path: The file path/key in the bucket
+    - expires_in: Expiration time in seconds (default: 3600 = 1 hour)
+
+  ## Returns
+    - {:ok, url} on success
+    - {:error, reason} on failure
+  """
+  def presigned_url(path, expires_in \\ 3600) do
+    bucket = bucket_name()
+    config = ExAws.Config.new(:s3)
+
+    case ExAws.S3.presigned_url(config, :get, bucket, path, expires_in: expires_in) do
+      {:ok, url} -> {:ok, url}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
   defp bucket_name do
     Application.get_env(:ppr_api, :r2_bucket) ||
       raise """

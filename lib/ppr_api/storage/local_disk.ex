@@ -94,4 +94,19 @@ defmodule PprApi.Storage.LocalDisk do
     end_date = DateTime.to_date(started_at)
     "fetches/#{Date.to_string(starts_on)}-#{Date.to_string(end_date)}.csv"
   end
+
+  @doc """
+  LocalDisk doesn't support presigned URLs since files are local.
+  Always returns an error.
+
+  ## Parameters
+    - path: The file path (unused)
+    - expires_in: Expiration time (unused)
+
+  ## Returns
+    - {:error, :not_supported}
+  """
+  def presigned_url(_path, _expires_in \\ 3600) do
+    {:error, :not_supported}
+  end
 end
