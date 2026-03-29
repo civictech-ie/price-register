@@ -16,7 +16,7 @@
   </div>
 
   <div class="table__rows">
-    <%= for %{fetch: fetch, csv_url: csv_url} <- @fetches do %>
+    <%= for %{fetch: fetch} <- @fetches do %>
       <div class="table__row">
         <div class="table__cell --important">{fetch.status}</div>
         <div class="table__cell --important" title={fetch.finished_at || ""}>
