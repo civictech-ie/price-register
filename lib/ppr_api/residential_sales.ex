@@ -163,13 +163,17 @@ defmodule PprApi.ResidentialSales do
     |> Map.put("limit", parse_limit(opts["limit"]))
   end
 
+  @max_limit 1000
+  @default_limit 250
+
   defp parse_limit(limit) when is_number(limit) do
-    limit
+    min(limit, @max_limit)
   end
 
   defp parse_limit(limit) when is_binary(limit) do
     case Integer.parse(limit) do
-      {num, _} -> num
+      {num, _} -> min(num, @max_limit)
+      :error -> @default_limit
     end
   end
 

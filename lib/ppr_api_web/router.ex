@@ -9,11 +9,10 @@ defmodule PprApiWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
 
-    # only allow CORS requests from the same origin, localhost or https:// + EXTERNAL_HOST
     plug Corsica,
       origins: [
         "http://localhost:4000",
-        "https://#{System.get_env("EXTERNAL_HOSTNAME")}"
+        "https://#{System.get_env("EXTERNAL_HOSTNAME") || "localhost"}"
       ]
   end
 

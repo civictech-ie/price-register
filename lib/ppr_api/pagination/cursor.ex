@@ -36,7 +36,7 @@ defmodule PprApi.Pagination.Cursor do
   def decode_cursor(encoded, "price") do
     with {:ok, decoded} <- Base.url_decode64(encoded, padding: false),
          [val_str, raw_id] <- String.split(decoded, "|", parts: 2),
-         {price, ""} <- Integer.parse(val_str),
+         {price, ""} <- Decimal.parse(val_str),
          {id, ""} <- Integer.parse(raw_id) do
       {price, id}
     else
