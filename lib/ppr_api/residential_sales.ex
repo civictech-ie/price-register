@@ -117,21 +117,28 @@ defmodule PprApi.ResidentialSales do
   # e.g. "limit" => "10" -> "limit" => 10
   #      "sort" => "date-desc" -> "sort" => {"date", "desc"}
   #      "before" => "706867" -> "cursor" => {"706867", "before"}
-  defp parse_opts(opts) do
-    opts
-    |> parse_sort()
-    |> parse_cursor()
-    |> parse_limit()
+  def parse_sort(sort) when is_binary(sort) do
+    case String.split(sort, "-") do
+      [field, direction] when field in ["date", "price"] and direction in ["asc", "desc"] ->
+        {:ok, {field, direction}}
+
+      _ ->
+        :error
+    end
   end
 
-  defp parse_sort(opts) when is_map(opts) do
+  def parse_sort(_), do: :error
+
+  defp parse_opts(opts) do
     opts
-    |> Map.update("sort", nil, fn sort ->
-      case String.split(sort, "-") do
-        [field, direction] -> {field, direction}
-        _ -> nil
+    |> Map.update("sort", {"date", "desc"}, fn sort ->
+      case parse_sort(sort) do
+        {:ok, tuple} -> tuple
+        :error -> {"date", "desc"}
       end
     end)
+    |> parse_cursor()
+    |> parse_limit()
   end
 
   # accepts %{"after" => cursor} = opts

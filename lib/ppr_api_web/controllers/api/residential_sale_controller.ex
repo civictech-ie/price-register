@@ -6,14 +6,12 @@ defmodule PprApiWeb.API.ResidentialSaleController do
   action_fallback PprApiWeb.FallbackController
 
   def index(conn, params) do
-    opts =
-      params
-      |> parse_params()
+    with {:ok, opts} <- parse_params(params) do
+      %{entries: entries, metadata: metadata} =
+        ResidentialSales.list_residential_sales(opts)
 
-    %{entries: entries, metadata: metadata} =
-      ResidentialSales.list_residential_sales(opts)
-
-    render(conn, :index, entries: entries, metadata: metadata)
+      render(conn, :index, entries: entries, metadata: metadata)
+    end
   end
 
   defp parse_params(params) do
@@ -24,13 +22,21 @@ defmodule PprApiWeb.API.ResidentialSaleController do
       "limit" => 250
     }
 
-    defaults
-    |> Map.merge(Map.take(params, Map.keys(defaults)))
-    |> Enum.reject(fn
-      {_key, nil} -> true
-      {_key, value} when is_binary(value) -> String.trim(value) == ""
-      {_key, _value} -> false
-    end)
-    |> Enum.into(%{})
+    filtered_params =
+      params
+      |> Map.take(Map.keys(defaults))
+      |> Enum.reject(fn
+        {_key, nil} -> true
+        {_key, value} when is_binary(value) -> String.trim(value) == ""
+        {_key, _value} -> false
+      end)
+      |> Enum.into(%{})
+
+    opts = Map.merge(defaults, filtered_params)
+
+    case ResidentialSales.parse_sort(opts["sort"]) do
+      {:ok, sort} -> {:ok, Map.put(opts, "sort", sort)}
+      :error -> {:error, :bad_request}
+    end
   end
 end

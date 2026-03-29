@@ -74,14 +74,17 @@ defmodule PprApiWeb.ResidentialSaleLive.Index do
       "limit" => 250
     }
 
-    defaults
-    |> Map.merge(Map.take(params, Map.keys(defaults)))
-    |> Enum.reject(fn
-      {_key, nil} -> true
-      {_key, value} when is_binary(value) -> String.trim(value) == ""
-      {_key, _value} -> false
-    end)
-    |> Enum.into(%{})
+    filtered_params =
+      params
+      |> Map.take(Map.keys(defaults))
+      |> Enum.reject(fn
+        {_key, nil} -> true
+        {_key, value} when is_binary(value) -> String.trim(value) == ""
+        {_key, _value} -> false
+      end)
+      |> Enum.into(%{})
+
+    Map.merge(defaults, filtered_params)
   end
 
   # Helper function to rename a key in a map
