@@ -14,25 +14,14 @@ defmodule PprApi.Application do
       {DNSCluster, query: Application.get_env(:ppr_api, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: PprApi.PubSub},
       {Finch, name: PprApi.Finch},
-      PprApiWeb.Endpoint
+      PprApiWeb.Endpoint,
+      PprApi.Scheduler
     ]
-
-    children =
-      if scheduler_enabled?() do
-        Enum.concat(children, [PprApi.Scheduler])
-      else
-        children
-      end
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: PprApi.Supervisor]
     Supervisor.start_link(children, opts)
-  end
-
-  defp scheduler_enabled? do
-    Application.get_env(:ppr_api, :scheduler_enabled) &&
-      System.get_env("RENDER_INSTANCE_ID", "0") == "0"
   end
 
   @impl true
