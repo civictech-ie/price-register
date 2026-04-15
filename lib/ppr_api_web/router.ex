@@ -30,7 +30,6 @@ defmodule PprApiWeb.Router do
     pipe_through :browser
 
     get "/info", PageController, :info
-    get "/docs", PageController, :docs
 
     live "/status", FetchLive.Index, :index
     live "/residential/sales", ResidentialSaleLive.Index, :index
