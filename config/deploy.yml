@@ -1,0 +1,59 @@
+service: ppr_api
+image: civictech-ie/price-register
+
+servers:
+  web:
+    - <%= File.read(".kamal/host").strip %>
+
+proxy:
+  host: priceregister.civictech.ie
+  app_port: 4000
+  ssl: true
+
+registry:
+  server: ghcr.io
+  username: brianflanagan
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+builder:
+  arch: amd64
+  remote: ssh://<%= File.read(".kamal/host").strip %>
+
+env:
+  clear:
+    EXTERNAL_HOSTNAME: priceregister.civictech.ie
+    PORT: 4000
+    POOL_SIZE: 10
+    APPSIGNAL_APP_ENV: prod
+    APPSIGNAL_APP_NAME: ppr_api
+    APPSIGNAL_OTP_APP: ppr_api
+    SAVE_FETCH_CSV: "true"
+  secret:
+    - SECRET_KEY_BASE
+    - DATABASE_URL
+    - R2_BUCKET
+    - R2_ACCESS_KEY_ID
+    - R2_SECRET_ACCESS_KEY
+    - R2_ENDPOINT
+    - APPSIGNAL_PUSH_API_KEY
+
+accessories:
+  db:
+    image: postgres:17
+    host: <%= File.read(".kamal/host").strip %>
+    port: "127.0.0.1:5432:5432"
+    env:
+      clear:
+        POSTGRES_DB: ppr_api_production
+        POSTGRES_USER: ppr_api
+      secret:
+        - POSTGRES_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data
+
+aliases:
+  console: app exec --interactive --reuse "/app/bin/ppr_api remote"
+  shell: app exec --interactive --reuse "sh"
+  logs: app logs -f
+  dbc: accessory exec db --interactive --reuse "psql -U ppr_api ppr_api_production"

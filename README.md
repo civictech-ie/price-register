@@ -30,6 +30,10 @@ Now you can visit [`localhost:4000`](http://localhost:4000) and it should be wor
 
 CSV backups are saved to local disk in development. In production, defaults to [Cloudflare R2](https://www.cloudflare.com/developer-platform/r2/) (free, S3-compatible). To use local disk in production, set `STORAGE_ADAPTER=LocalDisk`. I just like having the CSVs for auditing/diffing purposes. You may not care: to disable CSV saving entirely, set `SAVE_FETCH_CSV=false`.
 
+## deployment
+
+I deploy my instance with [Kamal 2](https://kamal-deploy.org). The config is in `config/deploy.yml`, and secrets live in gitignored files under `.kamal/` (see `.kamal/secrets.example`). If you want to run your own instance, any host that can run the `Dockerfile` alongside a Postgres database will do.
+
 ## contributing
 
 If you're interested in contributing, put a note [in the issues](https://github.com/civictech-ie/price-register/issues). And make sure the tests pass (`mix test`).

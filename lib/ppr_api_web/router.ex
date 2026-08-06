@@ -21,6 +21,8 @@ defmodule PprApiWeb.Router do
     plug Corsica, origins: "*"
   end
 
+  get "/up", PprApiWeb.UpController, :index
+
   scope "/api/v1", PprApiWeb do
     pipe_through :api
     resources "/residential/sales", API.ResidentialSaleController
