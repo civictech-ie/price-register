@@ -18,7 +18,7 @@ registry:
 
 builder:
   arch: amd64
-  remote: ssh://<%= File.read(".kamal/host").strip %>
+  remote: ssh://root@<%= File.read(".kamal/host").strip %>
 
 env:
   clear:
@@ -50,7 +50,7 @@ accessories:
       secret:
         - POSTGRES_PASSWORD
     directories:
-      - data:/var/lib/postgresql/data
+      - /srv/ppr_api/db:/var/lib/postgresql/data
 
 aliases:
   console: app exec --interactive --reuse "/app/bin/ppr_api remote"
