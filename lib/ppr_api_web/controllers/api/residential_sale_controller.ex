@@ -5,12 +5,18 @@ defmodule PprApiWeb.API.ResidentialSaleController do
 
   action_fallback PprApiWeb.FallbackController
 
+  # honoured by browsers and intermediate proxies; Cloudflare's edge only
+  # honours it for this JSON endpoint if a Cache Rule enables caching
+  @cache_control "public, max-age=60"
+
   def index(conn, params) do
     with {:ok, opts} <- parse_params(params) do
       %{entries: entries, metadata: metadata} =
         ResidentialSales.list_residential_sales(opts)
 
-      render(conn, :index, entries: entries, metadata: metadata)
+      conn
+      |> put_resp_header("cache-control", @cache_control)
+      |> render(:index, entries: entries, metadata: metadata)
     end
   end
 

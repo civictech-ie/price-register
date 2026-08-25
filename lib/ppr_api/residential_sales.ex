@@ -16,7 +16,7 @@ defmodule PprApi.ResidentialSales do
       "limit" => "10" | "1000"
     }
   """
-  def list_residential_sales(opts \\ []) do
+  def list_residential_sales(opts \\ %{}) do
     opts = parse_opts(opts)
 
     {before_entry, entries, after_entry} = get_sales_and_peek(opts)
@@ -116,7 +116,7 @@ defmodule PprApi.ResidentialSales do
   # that will be a bit more usable for the rest of the functions
   # e.g. "limit" => "10" -> "limit" => 10
   #      "sort" => "date-desc" -> "sort" => {"date", "desc"}
-  #      "before" => "706867" -> "cursor" => {"706867", "before"}
+  #      "before" => <cursor> -> "cursor" => {{value, id}, "before"}
   def parse_sort(sort) when is_binary(sort) do
     case String.split(sort, "-") do
       [field, direction] when field in ["date", "price"] and direction in ["asc", "desc"] ->
@@ -126,6 +126,13 @@ defmodule PprApi.ResidentialSales do
         :error
     end
   end
+
+  # an already-parsed sort tuple passes through unchanged, so callers that
+  # parse the sort themselves (e.g. the API controller) aren't re-parsed
+  # into the default
+  def parse_sort({field, direction})
+      when field in ["date", "price"] and direction in ["asc", "desc"],
+      do: {:ok, {field, direction}}
 
   def parse_sort(_), do: :error
 
@@ -141,170 +148,144 @@ defmodule PprApi.ResidentialSales do
     |> parse_limit()
   end
 
-  # accepts %{"after" => cursor} = opts
-  # returns %{"cursor" => {{value, id}, "after"}}
-  # where value is the decoded value, depending on the sort field
-  defp parse_cursor(%{"after" => value, "sort" => {sort_field, _sort_direction}} = opts) do
-    opts
-    |> Map.delete("after")
-    |> Map.put("cursor", {Cursor.decode_cursor(value, sort_field), "after"})
+  # resolves the "after"/"before" params into a single "cursor" option.
+  # "after" wins when both are present; nil and undecodable cursors are
+  # dropped so the query falls back to the first page.
+  defp parse_cursor(%{"sort" => {sort_field, _direction}} = opts) do
+    cursor =
+      case {opts["after"], opts["before"]} do
+        {after_cursor, _} when is_binary(after_cursor) ->
+          decode_cursor(after_cursor, sort_field, "after")
+
+        {_, before_cursor} when is_binary(before_cursor) ->
+          decode_cursor(before_cursor, sort_field, "before")
+
+        _ ->
+          nil
+      end
+
+    opts = Map.drop(opts, ["after", "before"])
+
+    case cursor do
+      nil -> opts
+      cursor -> Map.put(opts, "cursor", cursor)
+    end
   end
 
-  defp parse_cursor(%{"before" => value, "sort" => {sort_field, _sort_direction}} = opts) do
-    opts
-    |> Map.delete("before")
-    |> Map.put("cursor", {Cursor.decode_cursor(value, sort_field), "before"})
+  defp decode_cursor(encoded, sort_field, direction) do
+    case Cursor.decode_cursor(encoded, sort_field) do
+      {value, id} -> {{value, id}, direction}
+      nil -> nil
+    end
   end
 
-  defp parse_cursor(opts), do: opts
+  @max_limit 1000
+  @default_limit 250
 
   defp parse_limit(opts) when is_map(opts) do
     opts
     |> Map.put("limit", parse_limit(opts["limit"]))
   end
 
-  @max_limit 1000
-  @default_limit 250
-
   defp parse_limit(limit) when is_number(limit) do
-    min(limit, @max_limit)
+    limit |> min(@max_limit) |> max(0)
   end
 
   defp parse_limit(limit) when is_binary(limit) do
     case Integer.parse(limit) do
-      {num, _} -> min(num, @max_limit)
+      {num, _} -> parse_limit(num)
       :error -> @default_limit
     end
   end
 
+  defp parse_limit(_), do: @default_limit
+
   # The Actual Query
 
-  # if i'm ascending and paginating forwards (after), i want to get the entries
-  # that are greater than the cursor value.
-  #
-  # if i'm ascending and paginating backwards (before), i want to get the entries
-  # that are less than (but closest to) the cursor value.
-  #
-  # if i'm descending and paginating forwards (after), i want to get the entries
-  # that are less than the cursor value
-  #
-  # if i'm descending and paginating backwards (before), i want to get the entries
-  # that are greater than (but closest to) the cursor value
-  #
-  # before and after should follow the sort order, so should be independent of the
-  # cursor direction. (i.e. if i've pressed previous, then the previous button should
-  # still show me further in the previous direction.)
+  # cursor predicates are PostgreSQL row-value comparisons, e.g.
+  # (date_of_sale, id) < ($1, $2), so the planner can use the composite
+  # (date_of_sale, id) / (price_in_euros, id) indexes as access conditions
+  # instead of filtering every row.
 
   defp get_sales_and_peek(opts) do
-    last_fetch_time =
-      case PprApi.Fetches.get_latest_successful_full_fetch() do
-        %Fetch{started_at: started_at} -> started_at
-        _ -> nil
-      end
+    base_query = current_snapshot_query()
 
-    query =
-      ResidentialSale
+    entries =
+      base_query
       |> apply_cursor(opts)
       |> apply_order(opts)
       |> apply_limit(opts)
+      |> Repo.all()
+      |> apply_corrective_flip(opts)
 
-    query =
-      if last_fetch_time do
-        query |> where([s], s.updated_at >= ^last_fetch_time)
-      else
-        query
-      end
-
-    entries = Repo.all(query) |> apply_corrective_flip(opts)
-
-    before_entry = set_peek_entry(:before, entries, opts)
-    after_entry = set_peek_entry(:after, entries, opts)
+    before_entry = set_peek_entry(:before, entries, opts, base_query)
+    after_entry = set_peek_entry(:after, entries, opts, base_query)
 
     {before_entry, entries, after_entry}
   end
 
-  defp apply_cursor(query, %{
-         "cursor" => {{cursor_value, cursor_id}, direction},
-         "sort" => {"date", order}
-       }) do
-    case {direction, order} do
-      {"before", "asc"} -> query |> less_than_date(cursor_value, cursor_id)
-      {"after", "asc"} -> query |> greater_than_date(cursor_value, cursor_id)
-      {"before", "desc"} -> query |> greater_than_date(cursor_value, cursor_id)
-      {"after", "desc"} -> query |> less_than_date(cursor_value, cursor_id)
+  # restricts rows to the latest successful full fetch; the same base query
+  # is used for the page query and the peek queries
+  defp current_snapshot_query do
+    case Fetches.get_latest_successful_full_fetch() do
+      %Fetch{started_at: %DateTime{} = started_at} ->
+        ResidentialSale |> where([s], s.updated_at >= ^started_at)
+
+      _ ->
+        ResidentialSale
     end
   end
 
-  defp apply_cursor(query, %{
-         "cursor" => {{cursor_value, cursor_id}, direction},
-         "sort" => {"price", order}
-       }) do
-    case {direction, order} do
-      {"before", "asc"} -> query |> less_than_price(cursor_value, cursor_id)
-      {"after", "asc"} -> query |> greater_than_price(cursor_value, cursor_id)
-      {"before", "desc"} -> query |> greater_than_price(cursor_value, cursor_id)
-      {"after", "desc"} -> query |> less_than_price(cursor_value, cursor_id)
+  # if i'm ascending and paginating forwards (after), i want the entries
+  # greater than the cursor; paginating backwards (before), the entries
+  # less than it. descending flips both.
+  defp apply_cursor(query, %{"cursor" => {{value, id}, direction}, "sort" => {field, order}}) do
+    case cursor_operator(direction, order) do
+      :gt -> row_greater_than(query, sort_column(field), value, id)
+      :lt -> row_less_than(query, sort_column(field), value, id)
     end
   end
 
   defp apply_cursor(query, _opts), do: query
 
-  defp greater_than_date(query, cursor_value, cursor_id) do
+  defp cursor_operator("after", "asc"), do: :gt
+  defp cursor_operator("before", "asc"), do: :lt
+  defp cursor_operator("after", "desc"), do: :lt
+  defp cursor_operator("before", "desc"), do: :gt
+
+  defp row_greater_than(query, column, value, id) do
     query
-    |> where([s], s.date_of_sale > ^cursor_value)
-    |> or_where([s], s.date_of_sale == ^cursor_value and s.id > ^cursor_id)
+    |> where([s], fragment("(?, ?) > (?, ?)", field(s, ^column), s.id, ^value, ^id))
   end
 
-  defp less_than_date(query, cursor_value, cursor_id) do
+  defp row_less_than(query, column, value, id) do
     query
-    |> where([s], s.date_of_sale < ^cursor_value)
-    |> or_where([s], s.date_of_sale == ^cursor_value and s.id < ^cursor_id)
+    |> where([s], fragment("(?, ?) < (?, ?)", field(s, ^column), s.id, ^value, ^id))
   end
 
-  defp greater_than_price(query, cursor_value, cursor_id) do
-    query
-    |> where([s], s.price_in_euros > ^cursor_value)
-    |> or_where([s], s.price_in_euros == ^cursor_value and s.id > ^cursor_id)
+  defp sort_column("date"), do: :date_of_sale
+  defp sort_column("price"), do: :price_in_euros
+
+  # the sort order is flipped while querying backwards (before), and the
+  # rows are re-flipped after the query is performed
+  defp apply_order(query, %{"sort" => {field, order}} = opts) do
+    order =
+      case opts do
+        %{"cursor" => {_cursor, "before"}} -> flip_order(order)
+        _ -> order
+      end
+
+    direction = order_direction(order)
+    column = sort_column(field)
+
+    order_by(query, [s], [{^direction, field(s, ^column)}, {^direction, s.id}])
   end
 
-  defp less_than_price(query, cursor_value, cursor_id) do
-    query
-    |> where([s], s.price_in_euros < ^cursor_value)
-    |> or_where([s], s.price_in_euros == ^cursor_value and s.id < ^cursor_id)
-  end
+  defp flip_order("asc"), do: "desc"
+  defp flip_order("desc"), do: "asc"
 
-  # the sort order should be flipped if we're paginating backwards,
-  # and then re-flipped after the query is perfromed
-
-  defp apply_order(query, %{"sort" => {field, order}, "cursor" => {_cursor, direction}}) do
-    case {field, order, direction} do
-      {"date", "desc", "before"} -> query |> ascending_by(:date_of_sale)
-      {"date", "desc", "after"} -> query |> descending_by(:date_of_sale)
-      {"date", "asc", "before"} -> query |> descending_by(:date_of_sale)
-      {"date", "asc", "after"} -> query |> ascending_by(:date_of_sale)
-      {"price", "desc", "before"} -> query |> ascending_by(:price_in_euros)
-      {"price", "desc", "after"} -> query |> descending_by(:price_in_euros)
-      {"price", "asc", "before"} -> query |> descending_by(:price_in_euros)
-      {"price", "asc", "after"} -> query |> ascending_by(:price_in_euros)
-    end
-  end
-
-  defp apply_order(query, %{"sort" => {field, order}}) do
-    case {field, order} do
-      {"date", "desc"} -> query |> descending_by(:date_of_sale)
-      {"date", "asc"} -> query |> ascending_by(:date_of_sale)
-      {"price", "desc"} -> query |> descending_by(:price_in_euros)
-      {"price", "asc"} -> query |> ascending_by(:price_in_euros)
-    end
-  end
-
-  defp ascending_by(query, field) do
-    query |> order_by(asc: ^field, asc: :id)
-  end
-
-  defp descending_by(query, field) do
-    query |> order_by(desc: ^field, desc: :id)
-  end
+  defp order_direction("asc"), do: :asc
+  defp order_direction("desc"), do: :desc
 
   defp apply_limit(query, opts) do
     query |> limit(^opts["limit"])
@@ -319,65 +300,31 @@ defmodule PprApi.ResidentialSales do
 
   # PEEK QUERIES
 
-  defp set_peek_entry(_dir, [], _opts), do: nil
+  # a peek asks: is there at least one row beyond this edge entry in the
+  # given direction? it reuses apply_cursor, so it runs the same row-value
+  # comparison against the same snapshot as the page query.
 
-  defp set_peek_entry(:before, [first_entry | _], %{"sort" => {field, order}}) do
-    if has_entry_in_direction?(field, order, first_entry, :before),
+  defp set_peek_entry(_direction, [], _opts, _base_query), do: nil
+
+  defp set_peek_entry(:before, [first_entry | _], opts, base_query) do
+    if has_entry_in_direction?(base_query, first_entry, "before", opts),
       do: first_entry,
       else: nil
   end
 
-  defp set_peek_entry(:after, entries, %{"sort" => {field, order}}) do
+  defp set_peek_entry(:after, entries, opts, base_query) do
     last_entry = List.last(entries)
 
-    if has_entry_in_direction?(field, order, last_entry, :after),
+    if has_entry_in_direction?(base_query, last_entry, "after", opts),
       do: last_entry,
       else: nil
   end
 
-  defp has_entry_in_direction?(
-         "date",
-         order,
-         %ResidentialSale{id: id, date_of_sale: date},
-         direction
-       ),
-       do:
-         has_entry_in_direction_date(ResidentialSale, order, date, id, direction)
-         |> Repo.exists?()
+  defp has_entry_in_direction?(base_query, entry, direction, %{"sort" => {field, _order} = sort}) do
+    value = Map.fetch!(entry, sort_column(field))
 
-  defp has_entry_in_direction?(
-         "price",
-         order,
-         %ResidentialSale{id: id, price_in_euros: price},
-         direction
-       ),
-       do:
-         has_entry_in_direction_price(ResidentialSale, order, price, id, direction)
-         |> Repo.exists?()
-
-  # date
-  defp has_entry_in_direction_date(queryable, "asc", date, id, :before),
-    do: less_than_date(queryable, date, id)
-
-  defp has_entry_in_direction_date(queryable, "asc", date, id, :after),
-    do: greater_than_date(queryable, date, id)
-
-  defp has_entry_in_direction_date(queryable, "desc", date, id, :before),
-    do: greater_than_date(queryable, date, id)
-
-  defp has_entry_in_direction_date(queryable, "desc", date, id, :after),
-    do: less_than_date(queryable, date, id)
-
-  # price
-  defp has_entry_in_direction_price(queryable, "asc", price, id, :before),
-    do: less_than_price(queryable, price, id)
-
-  defp has_entry_in_direction_price(queryable, "asc", price, id, :after),
-    do: greater_than_price(queryable, price, id)
-
-  defp has_entry_in_direction_price(queryable, "desc", price, id, :before),
-    do: greater_than_price(queryable, price, id)
-
-  defp has_entry_in_direction_price(queryable, "desc", price, id, :after),
-    do: less_than_price(queryable, price, id)
+    base_query
+    |> apply_cursor(%{"cursor" => {{value, entry.id}, direction}, "sort" => sort})
+    |> Repo.exists?()
+  end
 end
